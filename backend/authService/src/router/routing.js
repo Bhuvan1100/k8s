@@ -1,4 +1,4 @@
-import prisma from "../utils/prismaClient.js";
+import prisma from "../config/prismaClient.js";
 
 const ORIGIN_MAP = {
   "https://buyer.cartcraft.com": "BUYER",
