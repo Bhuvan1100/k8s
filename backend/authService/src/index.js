@@ -6,8 +6,8 @@ const app = express();
 
 app.use(express.json());
 
-app.post('signup',signup);
-app.post('login', login)
+app.post('/signup',signup);
+app.post('/login', login)
 
 const PORT = 4001;
 app.listen(PORT, () => {

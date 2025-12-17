@@ -1,57 +1,67 @@
 import prisma from "../utils/prismaClient.js";
 
-/**
- * SIGNUP
- * - If user does not exist → create with role
- * - If user exists:
- *    - role already present → do nothing
- *    - role missing → add role
- * - Return roles in all cases
- */
+const ORIGIN_MAP = {
+  "https://buyer.cartcraft.com": "BUYER",
+  "https://seller.cartcraft.com": "SELLER",
+  "http://localhost:3000": "BUYER",
+  "http://localhost:3001": "SELLER"
+};
+
 export const signup = async (req, res) => {
-  const { email, firebase_id, role } = req.body;
+  try {
+    const { email, firebase_id } = req.body;
+    const origin = req.headers.origin;
+    
+    const role = ORIGIN_MAP[origin]    
 
-  if (!firebase_id || !role) {
-    return res.status(400).json({ message: "firebase_id and role required" });
-  }
+    if (!firebase_id) {
+      return res.status(400).json({ message: "firebase_id required" });
+    }
 
-  let user = await prisma.user.findUnique({
-    where: { userId: firebase_id }
-  });
+    if (!role) {
+      return res.status(400).json({ message: "Invalid or unsupported origin" });
+    }
 
-  if (!user) {
-    user = await prisma.user.create({
-      data: {
-        userId: firebase_id,
-        email,
-        roles: [role]
-      }
+    let user = await prisma.user.findUnique({
+      where: { userId: firebase_id }
     });
-  } else if (!user.roles.includes(role)) {
-    user = await prisma.user.update({
-      where: { userId: firebase_id },
-      data: {
-        roles: {
-          push: role
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          userId: firebase_id,
+          email,
+          roles: [role]
         }
-      }
-    });
-  }
+      });
+    } else if (!user.roles.includes(role)) {
+      user = await prisma.user.update({
+        where: { userId: firebase_id },
+        data: {
+          roles: {
+            push: role
+          }
+        }
+      });
+    }
 
-  return res.json({
-    message: "Signup successful",
-    id:user.id,
-    email:user.email,
-    roles: user.roles,
-  });
+    console.log("user created");
+
+    return res.json({
+      message: "Signup successful",
+      id: user.userId,
+      email: user.email,
+      roles: user.roles
+    });
+
+  } catch (err) {
+    console.error("SIGNUP ERROR 👉", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 
-/**
- * LOGIN
- * - User must exist
- * - Just return roles
- */
+
 export const login = async (req, res) => {
   const { firebase_id } = req.body;
 
@@ -69,8 +79,8 @@ export const login = async (req, res) => {
 
   return res.json({
     message: "Login successful",
-    id:user.id,
+    id:user.userId,
     email:user.email,
-    roles: user.roles
+    roles: user.roles,
   });
 };

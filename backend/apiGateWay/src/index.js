@@ -1,8 +1,11 @@
+import "dotenv/config";
 import express from "express"
 import cookieParser from "cookie-parser";
 import jwtCookieMiddleware from "./middleware/verification.js";
 import { prometheusMiddleware, prometheusMetricsEndpoint } from "./metrics/prometheus.js";
 import {login , signup} from "./router/auth.js"
+import "dotenv/config";
+
 // import firebaseVerification from "./middleware/firebaseVerification.js";
 
 const app = express()
@@ -16,8 +19,8 @@ app.use(prometheusMiddleware);
 app.get('/metrics', prometheusMetricsEndpoint)
 
 
-app.post("/login",  login);
-app.post("/signup",  signup);
+app.post("/login", login);
+app.post("/signup", signup);
 
 
 app.use(jwtCookieMiddleware)
