@@ -1,8 +1,9 @@
 import express from "express"
 import cookieParser from "cookie-parser";
 import jwtCookieMiddleware from "./middleware/verification.js";
-import { prometheusMiddleware, prometheusMetricsEndpoint } from "../metrics/prometheus.js";
+import { prometheusMiddleware, prometheusMetricsEndpoint } from "./metrics/prometheus.js";
 import {login , signup} from "./router/auth.js"
+// import firebaseVerification from "./middleware/firebaseVerification.js";
 
 const app = express()
 const port = 4000
@@ -15,8 +16,8 @@ app.use(prometheusMiddleware);
 app.get('/metrics', prometheusMetricsEndpoint)
 
 
-app.post("/login", login);
-app.post("/signup", signup);
+app.post("/login",  login);
+app.post("/signup",  signup);
 
 
 app.use(jwtCookieMiddleware)

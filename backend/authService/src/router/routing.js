@@ -40,7 +40,9 @@ export const signup = async (req, res) => {
 
   return res.json({
     message: "Signup successful",
-    roles: user.roles
+    id:user.id,
+    email:user.email,
+    roles: user.roles,
   });
 };
 
@@ -67,6 +69,8 @@ export const login = async (req, res) => {
 
   return res.json({
     message: "Login successful",
+    id:user.id,
+    email:user.email,
     roles: user.roles
   });
 };
