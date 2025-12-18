@@ -6,7 +6,7 @@ import { prometheusMiddleware, prometheusMetricsEndpoint } from "./metrics/prome
 import {login , signup} from "./router/auth.js"
 import rateLimitMiddleware from "./middleware/rateLimit.js";
 
-// import firebaseVerification from "./middleware/firebaseVerification.js";
+
 
 const app = express()
 const port = 4000

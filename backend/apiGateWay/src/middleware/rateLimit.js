@@ -1,6 +1,6 @@
-import redis from "./redisClient.js";
+import redis from "../config/redisClient.js";
 
-const RATE_LIMIT = 10;
+const RATE_LIMIT = 5;
 const WINDOW_SEC = 60;
 
 const rateLimitMiddleware = async (req, res, next) => {
