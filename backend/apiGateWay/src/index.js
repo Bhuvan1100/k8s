@@ -4,14 +4,14 @@ import cookieParser from "cookie-parser";
 import jwtCookieMiddleware from "./middleware/verification.js";
 import { prometheusMiddleware, prometheusMetricsEndpoint } from "./metrics/prometheus.js";
 import {login , signup} from "./router/auth.js"
-import "dotenv/config";
+import rateLimitMiddleware from "./middleware/rateLimit.js";
 
 // import firebaseVerification from "./middleware/firebaseVerification.js";
 
 const app = express()
 const port = 4000
 
-
+app.use(rateLimitMiddleware)
 app.use(express.json())
 app.use(cookieParser());  
 app.use(prometheusMiddleware);
