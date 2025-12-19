@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  mobileNumber  String
+  addresses     Address[]
+  cart          Cart?
+  orders        Order[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Cart {
+  id        String      @id @default(uuid())
+  userId    String      @unique
+  status    CartStatus @default(ACTIVE)
+  items     CartItem[]
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model CartItem {
+  id            String   @id @default(uuid())
+  cartId        String
+  productId     String
+  quantity      Int
+  priceSnapshot Decimal
+  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id          String       @id @default(uuid())
+  userId      String
+  status      OrderStatus  @default(PENDING)
+  totalAmount Decimal
+  items       OrderItem[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+}
+
+model OrderItem {
+  id            String   @id @default(uuid())
+  orderId       String
+  productId     String
+  quantity      Int
+  priceSnapshot Decimal
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+enum CartStatus {
+  ACTIVE
+  CHECKED_OUT
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  DELIVERED
+}
