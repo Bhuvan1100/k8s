@@ -11,6 +11,10 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.19.1",
-    "prisma": "^6.19.1"
+    "bullmq": "^5.66.4",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "prisma": "^6.19.1",
+    "redis": "^5.10.0"
   }
 }
