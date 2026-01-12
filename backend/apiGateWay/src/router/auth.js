@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 export const signup = async (req, res) => {
   try {
     const response = await axios.post(
-      "http://localhost:4001/signup",
+      "http://localhost:4001/auth/signup",
       req.body,
       {
         headers: {
@@ -45,7 +45,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const response = await axios.post(
-      "http://localhost:4001/login",
+      "http://localhost:4001/auth/login",
       req.body,
       {
         headers: {

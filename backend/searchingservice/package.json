@@ -2,6 +2,7 @@
   "name": "searchingservice",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,8 +11,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bullmq": "^5.66.4",
+    "bullmq": "^5.66.5",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
     "meilisearch": "^0.55.0",
     "redis": "^5.10.0"
   }

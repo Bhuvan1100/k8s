@@ -26,7 +26,7 @@ model Seller {
 
   address       Address?
 
-  products      Product[]
+
 
   totalProducts Int           @default(0)
   totalOrders   Int           @default(0)
@@ -57,10 +57,9 @@ model Address {
 }
 
 model Product {
-  id          String            @id @default(uuid())
+  id          String   @id @default(uuid())
 
-  sellerId    String
-  seller      Seller            @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId    String   // keep field, NO relation
 
   title       String
   description String
@@ -69,13 +68,14 @@ model Product {
 
   variants    ProductVariant[]
 
-  isActive    Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([sellerId])
   @@index([category])
 }
+
 
 model ProductVariant {
   id        String   @id @default(uuid())

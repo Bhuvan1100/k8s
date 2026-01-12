@@ -3,27 +3,36 @@ import express from "express"
 import cookieParser from "cookie-parser";
 import jwtCookieMiddleware from "./middleware/verification.js";
 import { prometheusMiddleware, prometheusMetricsEndpoint } from "./metrics/prometheus.js";
-import {login , signup} from "./router/auth.js"
 import rateLimitMiddleware from "./middleware/rateLimit.js";
+
+
+import {login , signup} from "./router/auth.js"
+import { addProduct, deleteProduct } from "./router/seller.js";
+
 
 
 
 const app = express()
 const port = 4000
 
-app.use(rateLimitMiddleware)
-app.use(express.json())
+
+// app.use(prometheusMiddleware);
+// app.use(jwtCookieMiddleware)
+// app.use(rateLimitMiddleware)
+app.use(express.json());
 app.use(cookieParser());  
-app.use(prometheusMiddleware);
+
 
 app.get('/metrics', prometheusMetricsEndpoint)
 
 
-app.post("/login", login);
-app.post("/signup", signup);
+app.post("/auth/login", login);
+app.post("/auth/signup", signup);
+app.post("/seller/product", addProduct)
+app.delete("/seller/product", deleteProduct)
 
 
-app.use(jwtCookieMiddleware)
+
 
 
 

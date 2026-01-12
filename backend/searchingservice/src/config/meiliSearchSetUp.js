@@ -3,7 +3,7 @@ import { meiliClient } from "../infra/meilisearch.js";
 async function setup() {
   console.log("Setting up Meilisearch products index...");
 
-  await meiliClient.createIndex("products", {
+  await meiliClient.createIndex("products1", {
     primaryKey: "id"
   }).catch(() => {
     console.log("Index already exists");

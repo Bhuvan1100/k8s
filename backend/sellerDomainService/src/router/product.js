@@ -4,9 +4,9 @@ import { productSearchQueue } from "../infra/addProductQueue.js";
 
 const router = express.Router();
 
-
-
 export const addProduct = async (req, res) => {
+  console.log("addProduct request received");
+
   try {
     const {
       sellerId,
@@ -16,11 +16,23 @@ export const addProduct = async (req, res) => {
       variants
     } = req.body;
 
-    if (!sellerId || !title || !description || !category) {
+    console.log("request body", req.body);
+
+    if (
+      !sellerId ||
+      !title ||
+      !description ||
+      !category ||
+      !Array.isArray(variants) ||
+      variants.length === 0
+    ) {
+      console.log("validation failed for addProduct");
       return res.status(400).json({
-        message: "Missing required product fields"
+        message: "Invalid or missing product data"
       });
     }
+
+    console.log("creating product in database");
 
     const product = await prisma.product.create({
       data: {
@@ -29,32 +41,32 @@ export const addProduct = async (req, res) => {
         description,
         category,
         isActive: true,
-        variants: variants?.length
-          ? {
-              create: variants.map((variant) => ({
-                size: variant.size,
-                quantity: variant.quantity
-              }))
-            }
-          : undefined
+        variants: {
+          create: variants.map(v => ({
+            size: v.size,
+            quantity: v.quantity
+          }))
+        }
       },
       include: {
         variants: true
       }
     });
 
-   
+    console.log("product created with id", product.id);
+
+    console.log("adding job to productSearchQueue for indexing");
+
     await productSearchQueue.add(
       "index-product",
       {
-        productId: product.id,
-        sellerId: product.sellerId,
+        id: product.id,
         title: product.title,
         description: product.description,
         category: product.category,
-        variants: product.variants,
         isActive: product.isActive,
-        action: "CREATE"
+        availableSizes: product.variants.map(v => v.size),
+        createdAt: product.createdAt
       },
       {
         removeOnComplete: true,
@@ -62,12 +74,16 @@ export const addProduct = async (req, res) => {
       }
     );
 
+    console.log("index job added for product", product.id);
+
     return res.status(201).json({
       message: "Product added successfully",
       product
     });
+
   } catch (error) {
-    console.error("ADD PRODUCT ERROR:", error);
+    console.log("error occurred in addProduct");
+    console.error(error);
 
     return res.status(500).json({
       message: "Failed to add product",
@@ -79,24 +95,33 @@ export const addProduct = async (req, res) => {
 
 
 export const deleteProduct = async (req, res) => {
+  console.log("deleteProduct request received");
+
   try {
-    const { productId } = req.params;
+    const { productId } = req.body;
+
+    console.log("productId received", productId);
 
     if (!productId) {
+      console.log("productId missing in request");
       return res.status(400).json({
         message: "productId is required"
       });
     }
 
+    console.log("marking product inactive in database");
+
     const product = await prisma.product.update({
       where: { id: productId },
       data: {
         isActive: false,
-        deletedAt: new Date()
       }
     });
 
-    
+    console.log("product marked inactive", product.id);
+
+    console.log("adding delete job to productSearchQueue");
+
     await productSearchQueue.add(
       "index-product",
       {
@@ -110,11 +135,15 @@ export const deleteProduct = async (req, res) => {
       }
     );
 
+    console.log("delete index job added for product", product.id);
+
     return res.status(200).json({
       message: "Product marked inactive successfully"
     });
+
   } catch (error) {
-    console.error("DELETE PRODUCT ERROR:", error);
+    console.log("error occurred in deleteProduct");
+    console.error(error);
 
     return res.status(500).json({
       message: "Failed to delete product",
@@ -122,8 +151,6 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
-
-
 
 router.post("/add-product", addProduct);
 router.delete("/delete-product/:productId", deleteProduct);
