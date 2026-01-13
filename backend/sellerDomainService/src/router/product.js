@@ -57,24 +57,28 @@ export const addProduct = async (req, res) => {
 
     console.log("adding job to productSearchQueue for indexing");
 
-    await productSearchQueue.add(
-      "index-product",
-      {
-        id: product.id,
-        title: product.title,
-        description: product.description,
-        category: product.category,
-        isActive: product.isActive,
-        availableSizes: product.variants.map(v => v.size),
-        createdAt: product.createdAt
-      },
-      {
-        removeOnComplete: true,
-        attempts: 3
-      }
-    );
+    try {
+      await productSearchQueue.add(
+        "index-product",
+        {
+          id: product.id,
+          title: product.title,
+          description: product.description,
+          category: product.category,
+          isActive: product.isActive,
+          availableSizes: product.variants.map(v => v.size),
+          createdAt: product.createdAt
+        },
+        {
+          removeOnComplete: true,
+          attempts: 3
+        }
+      );
 
-    console.log("index job added for product", product.id);
+      console.log("index job added for product", product.id);
+    } catch (queueError) {
+      console.error("queue failed but product already created", queueError.message);
+    }
 
     return res.status(201).json({
       message: "Product added successfully",
@@ -91,6 +95,7 @@ export const addProduct = async (req, res) => {
     });
   }
 };
+
 
 
 
@@ -122,20 +127,24 @@ export const deleteProduct = async (req, res) => {
 
     console.log("adding delete job to productSearchQueue");
 
-    await productSearchQueue.add(
-      "index-product",
-      {
-        productId: product.id,
-        isActive: false,
-        action: "DELETE"
-      },
-      {
-        removeOnComplete: true,
-        attempts: 3
-      }
-    );
+    try {
+      await productSearchQueue.add(
+        "index-product",
+        {
+          productId: product.id,
+          isActive: false,
+          action: "DELETE"
+        },
+        {
+          removeOnComplete: true,
+          attempts: 3
+        }
+      );
 
-    console.log("delete index job added for product", product.id);
+      console.log("delete index job added for product", product.id);
+    } catch (queueError) {
+      console.error("queue delete failed but db is correct", queueError.message);
+    }
 
     return res.status(200).json({
       message: "Product marked inactive successfully"
@@ -151,8 +160,3 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
-
-router.post("/add-product", addProduct);
-router.delete("/delete-product/:productId", deleteProduct);
-
-export default router;
