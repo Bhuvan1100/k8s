@@ -14,7 +14,7 @@ export const checkAndReserveInventory = async (req, res) => {
 
     
     const response = await axios.post(
-      "http://localhost:4003/products/reserve",
+      "http://localhost:4003/seller/products/reserve",
       { items }
     );
 

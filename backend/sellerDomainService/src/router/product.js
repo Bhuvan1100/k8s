@@ -59,21 +59,26 @@ export const addProduct = async (req, res) => {
 
     try {
       await productSearchQueue.add(
-        "index-product",
-        {
-          id: product.id,
-          title: product.title,
-          description: product.description,
-          category: product.category,
-          isActive: product.isActive,
-          availableSizes: product.variants.map(v => v.size),
-          createdAt: product.createdAt
-        },
-        {
-          removeOnComplete: true,
-          attempts: 3
-        }
-      );
+      "index-product",
+      {
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        category: product.category,
+        isActive: product.isActive,
+        availableSizes: product.variants.reduce((acc, v) => {
+          acc[v.size] = v.quantity;
+          return acc;
+        }, {}),
+        createdAt: product.createdAt,
+        action: "ADD"
+      },
+      {
+        removeOnComplete: true,
+        attempts: 3
+      }
+    );
+
 
       console.log("index job added for product", product.id);
     } catch (queueError) {

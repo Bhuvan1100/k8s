@@ -10,6 +10,7 @@ app.use(express.json());
 
 
 app.post("/seller/product", addProduct)
+app.post("/seller/products/reserve")
 app.delete("/seller/product",deleteProduct)
 
 
