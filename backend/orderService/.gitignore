@@ -1,5 +1,84 @@
+# =========================
+# Node.js
+# =========================
 node_modules
-# Keep environment variables out of version control
-.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-/src/generated/prisma
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Build / dist
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Prisma
+# =========================
+prisma/migrations/
+prisma/dev.db
+prisma/*.db
+prisma/*.db-journal
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Docker
+# =========================
+docker-data/
+**/docker-data/
+**/data/
+
+# =========================
+# Redis
+# =========================
+dump.rdb
+
+# =========================
+# Meilisearch
+# =========================
+meili_data/
+**/meili_data/
+
+# =========================
+# Coverage
+# =========================
+coverage/
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+
+# =========================
+# Git
+# =========================
+*.orig
