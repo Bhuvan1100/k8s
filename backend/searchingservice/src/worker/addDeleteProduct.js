@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { redisConnection } from "../infra/redis.js";
+import { redisConnection } from "../infra/redisConnection.js";
 import { meiliClient } from "../infra/meilisearch.js";
 
 const INDEX = "products";
