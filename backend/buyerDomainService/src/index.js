@@ -1,10 +1,10 @@
 import express from "express";
-
+import accessLoggerMiddleware from "./middleware/accessLogger";
 const app = express();
 const PORT = process.env.PORT || 4002;
 
 app.use(express.json());
-
+app.use(accessLoggerMiddleware)
 
 
 app.put("/profile/update-number", (req, res) => {

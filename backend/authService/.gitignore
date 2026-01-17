@@ -1,5 +1,61 @@
-node_modules
-# Keep environment variables out of version control
-.env
+############################
+# Node.js
+############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-/src/generated/prisma
+############################
+# Environment variables
+############################
+.env
+.env.*
+!.env.example
+
+############################
+# Logs (Pino / App logs)
+############################
+logs/
+*.log
+
+############################
+# Build / Dist
+############################
+dist/
+build/
+out/
+
+############################
+# Coverage / Testing
+############################
+coverage/
+.nyc_output/
+
+############################
+# OS generated files
+############################
+.DS_Store
+Thumbs.db
+
+############################
+# IDE / Editor files
+############################
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+############################
+# Docker
+############################
+.dockerignore
+
+############################
+# Misc
+############################
+*.pid
+*.seed
+*.tgz
