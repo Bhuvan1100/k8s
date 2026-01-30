@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
 
-
-
 const jwtCookieMiddleware = (req, res, next) => {
   
   const token = req.cookies?.token;
@@ -12,7 +10,7 @@ const jwtCookieMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, "SECRET_KEY");
-    req.user = decoded; // { userId, role }
+    req.user = decoded; 
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });

@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+
+  sellerId      String
+
+  title         String
+  description   String
+
+  category      Category
+  subCategory   SubCategory
+
+  variants      ProductVariant[]
+  images        ProductImage[]
+
+  price         Float    @default(0)
+  totalQuantity Int      @default(0)
+  defaultImage  String?
+
+  ratings       ProductRating[]
+  comments      ProductComment[]
+
+  avgRating     Float    @default(0)
+  ratingCount   Int      @default(0)
+
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([sellerId])
+  @@index([category])
+}
+
+model ProductVariant {
+  id                 String   @id @default(uuid())
+
+  productId          String
+  product            Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  size               Size
+
+  totalQuantity      Int      @default(0)
+  reservedQuantity   Int      @default(0)
+  availableQuantity  Int      @default(0)
+
+  price              Float?
+  salePrice          Float?
+
+  sku                String?
+  isActive           Boolean  @default(true)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([productId, size])
+  @@index([productId])
+}
+
+model InventoryReservation {
+  id               String   @id @default(uuid())
+
+  orderId          String   
+  productVariantId String   
+
+  quantity         Int
+  status ReservationStatus @default(RESERVED)
+
+  expiresAt        DateTime
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([productVariantId])
+  @@index([status, expiresAt])
+  @@unique([orderId, productVariantId])
+
+}
+
+
+enum ReservationStatus {
+  RESERVED
+  RELEASED
+  CONSUMED
+}
+
+
+model ProductImage {
+  id        String   @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  url       String
+  isPrimary Boolean?
+  order     Int?
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+}
+
+model ProductRating {
+  id        String   @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId    String
+  userEmail String
+
+  rating    Int
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([userId])
+}
+
+model ProductComment {
+  id        String   @id @default(uuid())
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId    String
+  userEmail String
+
+  comment   String
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([userId])
+}
+
+
+
+enum Category {
+  MEN
+  WOMEN
+  KIDS
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum SubCategory {
+  MEN_TSHIRT
+  MEN_SHIRT
+  MEN_JEANS
+  MEN_TROUSERS
+  MEN_SHORTS
+  MEN_KURTA
+  MEN_ETHNIC_SET
+  MEN_JACKET
+  MEN_HOODIE
+  MEN_SWEATSHIRT
+  MEN_BLAZER
+  MEN_SUIT
+  MEN_TRACK_PANTS
+  MEN_ACTIVEWEAR
+  MEN_INNERWEAR
+  MEN_SLEEPWEAR
+  MEN_SWIMWEAR
+  MEN_FOOTWEAR
+  MEN_SANDALS
+  MEN_ACCESSORIES
+
+  WOMEN_SAREE
+  WOMEN_KURTI
+  WOMEN_DRESS
+  WOMEN_TOP
+  WOMEN_TSHIRT
+  WOMEN_JEANS
+  WOMEN_TROUSERS
+  WOMEN_SKIRT
+  WOMEN_LEGGINGS
+  WOMEN_ETHNIC_SET
+  WOMEN_GOWN
+  WOMEN_BLAZER
+  WOMEN_JACKET
+  WOMEN_SWEATER
+  WOMEN_NIGHTWEAR
+  WOMEN_ACTIVEWEAR
+  WOMEN_LINGERIE
+  WOMEN_SWIMWEAR
+  WOMEN_FOOTWEAR
+  WOMEN_ACCESSORIES
+
+  KIDS_TSHIRT
+  KIDS_SHIRT
+  KIDS_JEANS
+  KIDS_SHORTS
+  KIDS_DRESS
+  KIDS_ETHNIC_WEAR
+  KIDS_SLEEPWEAR
+  KIDS_FOOTWEAR
+  KIDS_TOYS
+  KIDS_ACCESSORIES
+}

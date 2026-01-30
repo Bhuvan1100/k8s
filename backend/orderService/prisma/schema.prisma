@@ -11,9 +11,13 @@ model Order {
   id            String        @id @default(uuid())
 
   userId        String
-  status        OrderStatus
+  status        OrderStatus  @default(PAYMENT_PENDING)
 
   paymentExpiresAt DateTime?
+
+  userDetailSnapshot Json
+
+  billingSnapshot Json
 
   paidAt        DateTime?
   processingUntil DateTime?
@@ -35,23 +39,29 @@ model Order {
 }
 
 model OrderItem {
-  id         String   @id @default(uuid())
+  id               String   @id @default(uuid())
 
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId          String
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-  productId  String
-  size       Size
-  quantity   Int
+  productId        String
+  productVariantId String
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  size             Size
+  quantity         Int
+  priceSnapshot    Decimal
 
-  @@index([productId])
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   @@index([orderId])
+  @@index([productId])
+  @@index([productVariantId])
 }
 
+
 enum OrderStatus {
+  ORDER_CREATED
   PAYMENT_PENDING
   PAYMENT_FAILED
 
@@ -59,6 +69,8 @@ enum OrderStatus {
   SHIPPING
   DELIVERED
   RETURN_WINDOW_OPEN
+  FAILED
+  PAID
 
   RETURN_REQUESTED
   RETURN_PROCESSING
@@ -75,3 +87,38 @@ enum Size {
   MEDIUM
   LARGE
 }
+
+model CheckoutSession {
+  id        String @id @default(uuid())
+
+  userId    String
+  cartId    String?
+
+  status    CheckoutSessionStatus @default(PREVIEW)
+
+  itemsSnapshot           Json
+  buyerDetailsSnapshot    Json?
+  shippingDetailsSnapshot Json?
+  pricingSnapshot         Json?
+
+  orderId   String?
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+enum CheckoutSessionStatus {
+  PREVIEW
+  DETAILS_FILLED
+  PAYMENT_PENDING
+  PAID
+  EXPIRED
+  CANCELLED
+}
+

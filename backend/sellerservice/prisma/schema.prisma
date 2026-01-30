@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Seller {
+  id              String        @id @default(uuid())
+  userId          String        @unique
+
+  businessName    String
+  sellerType      SellerType
+
+  email           String        @unique
+  phone           String?
+
+  status          SellerStatus  @default(PENDING)
+  isVerified      Boolean       @default(false)
+
+  kycStatus       KycStatus     @default(NOT_SUBMITTED)
+  panNumber       String?
+  gstNumber       String?
+
+  address         Address?
+
+  totalProducts   Int           @default(0)
+  totalOrders     Int           @default(0)
+  totalRevenue    Decimal?
+  rating          Float?
+
+  products        SellerProduct[]
+  orderItems      SellerOrderItem[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+}
+
+model Address {
+  id        String   @id @default(uuid())
+
+  line1     String
+  line2     String?
+  city      String
+  state     String
+  pincode   String
+  country   String
+
+  sellerId  String   @unique
+  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SellerProduct {
+  id        String   @id @default(uuid())
+  sellerId      String
+  seller        Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  title         String
+  defaultImage  String?
+  isActive      Boolean  @default(true)
+
+  variants      SellerProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sellerId])
+}
+
+model SellerProductVariant {
+  id                String   @id @default(uuid())
+  productId         String
+  product           SellerProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  productVariantId  String   @unique
+  size              Size
+  isActive          Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model SellerOrderItem {
+  id               String   @id @default(uuid())
+
+  sellerId         String
+  seller           Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  orderId          String
+
+  productId        String
+  productVariantId String
+
+  quantity         Int
+  priceSnapshot    Decimal
+
+  status           SellerOrderStatus @default(PAID)
+
+  soldAt           DateTime          @default(now())
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  refundedAt       DateTime?
+
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([sellerId])
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum SellerStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum SellerType {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+enum SellerOrderStatus {
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  RETURN_REQUESTED
+  RETURNED
+  REFUNDED
+  CANCELLED
+}
+
+enum Size {
+  SMALL
+  MEDIUM
+  LARGE
+}
+

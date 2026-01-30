@@ -1,0 +1,25 @@
+{
+  id: string,
+
+  title: string,
+  description?: string,
+
+  category: string,
+  subCategory: string,
+
+  price: number,
+  originalPrice?: number,
+  discountPercent?: number,
+
+  rating: number,
+  ratingCount: number,
+
+  mainImage: string,
+
+  totalQuantity: number,
+  isInStock: boolean,
+
+  sellerId: string,
+  isActive: boolean,
+  createdAt: number
+}

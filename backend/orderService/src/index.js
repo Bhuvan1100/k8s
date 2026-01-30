@@ -1,10 +1,15 @@
 import express from "express"
 import dotenv from "dotenv"
 
+import { connectProducer } from "./producer/producer.js"
+
 import { checkAndReserveInventory, requestReturn } from "./routes/order.js"
-import { handlePaymentResult } from "./routes/payment.js"
+import { handlePayment } from "./routes/payment.js"
 import { getOrderStatus } from "./routes/orderStatus.js"
-import { startOrderLifecycleCron } from "./cron/orderLifeCycleCron.js"
+import {startOrderLifecycleCron} from "./cron/orderLifecycleCron.js"
+import { checkoutPreview } from "./routes/softcheckout.js"
+import { fillCheckoutSessionDetails } from "./routes/checkoutDetails.js"
+import {commitCheckoutSession} from "./routes/commit.js"
 
 const app = express()
 dotenv.config()
@@ -13,13 +18,20 @@ app.use(express.json())
 startOrderLifecycleCron()
 
 app.post("/order", checkAndReserveInventory)
-app.post("/order/:orderId/payment", handlePaymentResult)
 app.get("/order/:orderId/status", getOrderStatus)
 app.post("/order/:orderId/return", requestReturn)
+app.post("/checkout/preview",checkoutPreview)
+app.post("/checkout/session/details", fillCheckoutSessionDetails)
+app.post("/checkout/session/commit", commitCheckoutSession)
+app.post("/order/payment", handlePayment)
 
 
+const start = async () => {
+  await connectProducer();
 
+  app.listen(4005, () => {
+    console.log("Order service running on port 4005");
+  });
+};
 
-app.listen(4010, ()=>{
-    console.log('Seller service has started at port 4010')
-})
+start();

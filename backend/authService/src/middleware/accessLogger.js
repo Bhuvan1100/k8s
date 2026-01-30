@@ -8,6 +8,7 @@ const accessLoggerMiddleware = (req, res, next) => {
     const durationMs = Date.now() - startTime
 
     accessLogger.info({
+      requestId: req.requestId,
       method: req.method,
       path: req.originalUrl,
       statusCode: res.statusCode,

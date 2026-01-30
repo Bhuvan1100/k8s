@@ -3,22 +3,25 @@ import { meiliClient } from "../infra/meilisearch.js";
 async function setup() {
   console.log("Setting up Meilisearch products index...");
 
-  await meiliClient.createIndex("products1", {
-    primaryKey: "id"
+  await meiliClient.createIndex("products", {
+    primaryKey: "id",
   }).catch(() => {
     console.log("Index already exists");
   });
 
   await meiliClient.index("products").updateSearchableAttributes([
     "title",
-    "description",
-    "category"
+    "description"
   ]);
 
   await meiliClient.index("products").updateFilterableAttributes([
     "category",
+    "subCategory",
     "isActive",
-    "availableSizes"
+    "price",
+    "isInStock",
+    "sellerId",
+    "totalQuantity"
   ]);
 
   await meiliClient.index("products").updateSortableAttributes([

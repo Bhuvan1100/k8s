@@ -9,11 +9,14 @@ datasource db {
 
 model User {
   id            String     @id @default(uuid())
+  userId        String     @unique
   email         String     @unique
   mobileNumber  String?
+
   addresses     Address[]
   cart          Cart?
   orders        Order[]
+
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
@@ -21,61 +24,105 @@ model User {
 model Address {
   id        String   @id @default(uuid())
   userId    String
+
   line1     String
   line2     String?
   city      String
   state     String
   pincode   String
+
   isDefault Boolean  @default(false)
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Cart {
-  id        String      @id @default(uuid())
-  userId    String      @unique
-  status    CartStatus @default(ACTIVE)
-  items     CartItem[]
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id         String      @id @default(uuid())
+  userId     String      @unique
+  status     CartStatus @default(ACTIVE)
+
+  totalPrice Decimal     @default(0)
+
+  items      CartItem[]
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 }
 
 model CartItem {
-  id            String   @id @default(uuid())
-  cartId        String
-  productId     String
-  quantity      Int
-  priceSnapshot Decimal
-  cart          Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  id               String   @id @default(uuid())
+  cartId           String
+
+  productId        String
+  productVariantId String
+
+  size             SizeVariant
+
+  quantity         Int
+  priceSnapshot    Decimal
+  totalPrice       Decimal
+
+  cart             Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productVariantId])
 }
 
 model Order {
-  id          String       @id @default(uuid())
-  userId      String
-  status      OrderStatus  @default(PENDING)
-  totalAmount Decimal
-  items       OrderItem[]
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
+  id              String      @id @default(uuid())
+  userId          String
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  status          OrderStatus @default(PAID)
+
+  totalAmount     Decimal
+  addressSnapshot Json?
+
+  billingSnapshot Json
+
+  items           OrderItem[]
+
+  eventPublished  Boolean     @default(false)
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model OrderItem {
-  id            String   @id @default(uuid())
-  orderId       String
-  productId     String
-  quantity      Int
-  priceSnapshot Decimal
-  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id               String   @id @default(uuid())
+  orderId          String
+
+  productId        String
+  productVariantId String
+
+  size             SizeVariant
+
+  titleSnapshot    String?
+  quantity         Int
+  priceSnapshot    Decimal
+
+  order            Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+enum SizeVariant {
+  SMALL
+  MEDIUM
+  LARGE
 }
 
 enum CartStatus {
   ACTIVE
   CHECKED_OUT
+  LOCKED
 }
 
 enum OrderStatus {
-  PENDING
-  CONFIRMED
+  PAYMENT_PENDING
+  PAID
+  PAYMENT_FAILED
   CANCELLED
-  DELIVERED
+  COMPLETE
+  RETURNED
 }
+

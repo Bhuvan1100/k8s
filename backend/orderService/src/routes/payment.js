@@ -1,96 +1,114 @@
 import prisma from "../config/prismaClient.js";
+import { kafkaProducer } from "../producer/producer.js";
 
-export const handlePaymentResult = async (req, res) => {
+export const handlePayment = async (req, res) => {
+  const { orderId, status } = req.body;
+
+  if (!orderId || !status) {
+    return res.status(400).json({
+      message: "orderId and status are required"
+    });
+  }
+
   try {
-    const { orderId } = req.params;
-    const { success } = req.query;
-
-    if (!orderId || success === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid payment request"
-      });
-    }
-
     const order = await prisma.order.findUnique({
-      where: { id: orderId }
+      where: { id: orderId },
+      include: {
+        items: true
+      }
     });
 
     if (!order) {
       return res.status(404).json({
-        success: false,
         message: "Order not found"
       });
     }
 
-    // only pending orders can be paid
-    if (order.status !== "PAYMENT_PENDING") {
-      return res.status(409).json({
-        success: false,
-        message: "Order is not awaiting payment"
+    // 🔒 Idempotency guard
+    if (order.status === "PAID" || order.status === "PAYMENT_FAILED") {
+      return res.status(200).json({
+        message: "Payment already processed"
       });
     }
 
-    // payment timeout check
-    if (order.paymentExpiresAt && new Date() > order.paymentExpiresAt) {
-      await prisma.order.update({
+   
+    if (status === "SUCCESS") {
+      const updatedOrder = await prisma.order.update({
         where: { id: orderId },
         data: {
-          status: "PAYMENT_FAILED"
+          status: "PAID",
+          paidAt: new Date()
         }
       });
 
-      // inventory restore should happen here (or via async/cron)
+      const eventPayload = {
+        orderId: updatedOrder.id,
+        userId: updatedOrder.userId,
+        billingSnapshot: updatedOrder.billingSnapshot,
+        items: order.items.map(item => ({
+          productId: item.productId,
+          productVariantId: item.productVariantId,
+          size: item.size,
+          quantity: item.quantity,
+          priceSnapshot: item.priceSnapshot
+        })),
+        paidAt: updatedOrder.paidAt
+      };
 
-      return res.status(410).json({
-        success: false,
-        message: "Payment window expired"
+      await kafkaProducer.send({
+        topic: "order.success",
+        messages: [
+          {
+            key: updatedOrder.id,
+            value: JSON.stringify(eventPayload)
+          }
+        ]
       });
-    }
-
-    const paymentSuccess = success === "true";
-
-    if (!paymentSuccess) {
-      await prisma.order.update({
-        where: { id: orderId },
-        data: {
-          status: "PAYMENT_FAILED"
-        }
-      });
-
-      // inventory restore should happen here
 
       return res.status(200).json({
-        success: false,
-        message: "Payment failed"
+        message: "Payment successful",
+        orderId: updatedOrder.id
       });
     }
 
-    // payment success
-    await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status: "ORDER_PROCESSING",
-        paidAt: new Date(),
-        processingUntil: new Date(Date.now() + 24 * 60 * 60 * 1000) // 1 day
-      }
-    });
+   
+    if (status === "FAILED") {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          status: "PAYMENT_FAILED"
+        }
+      });
 
-    return res.status(200).json({
-      success: true,
-      message: "Payment successful, order processing started"
+      await kafkaProducer.send({
+        topic: "order.failed",
+        messages: [
+          {
+            key: orderId,
+            value: JSON.stringify({
+              orderId,
+              userId: order.userId,
+              failedAt: new Date()
+            })
+          }
+        ]
+      });
+
+      return res.status(200).json({
+        message: "Payment failed",
+        orderId
+      });
+    }
+
+    return res.status(400).json({
+      message: "Invalid payment status"
     });
 
   } catch (error) {
-    console.error("Payment handling error:", error);
+    console.error("[ORDER-SERVICE] payment error:", error);
 
     return res.status(500).json({
-      success: false,
-      message: "Internal server error"
+      message: "Payment processing failed"
     });
   }
 };
-
-
-
-

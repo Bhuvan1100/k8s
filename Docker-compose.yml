@@ -1,0 +1,141 @@
+version: "3.9"
+
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.6
+    environment:
+      MEILI_NO_ANALYTICS: "true"
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./backend/infra/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:10.2.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  apigateway:
+    image: cartcraft-api-gateway
+    build: ./backend/apigateway
+    ports:
+      - "4000:4000"
+    depends_on:
+      - redis
+
+  authservice:
+    image: cartcraft-auth-service
+    build: ./backend/authservice
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/auth_db
+    depends_on:
+      - postgres
+
+  buyerservice:
+    image: cartcraft-buyer-service
+    build: ./backend/buyerdomainservice
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/buyer_db
+      REDIS_HOST: redis
+    depends_on:
+      - postgres
+      - kafka
+
+  productservice:
+    image: cartcraft-productservice-service
+    build: ./backend/productservice
+    depends_on:
+      - postgres
+      - kafka
+
+  communicationservice:
+    image: cartcraft-communication-service
+    build: ./backend/communicationservice
+
+  orderservice:
+    image: cartcraft-order-service
+    build: ./backend/orderservice
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/order_db
+    depends_on:
+      - postgres
+      - kafka
+
+  searchingservice:
+    image: cartcraft-searching-service
+    build: ./backend/searchingservice
+    environment:
+      MEILI_HOST: http://meilisearch:7700
+    depends_on:
+      - meilisearch
+
+  sellerservice:
+    image: cartcraft-seller-service
+    build: ./backend/sellerservice
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/seller1_db
+    depends_on:
+      - postgres
+      - kafka
+
+volumes:
+  postgres_data:
+  meili_data:
+  grafana_data:

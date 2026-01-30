@@ -5,55 +5,33 @@ import { meiliClient } from "../infra/meilisearch.js";
 const INDEX = "products";
 
 new Worker(
-  "product-search-sync",
-  async job => {
+  "productSearchQueue",
+  async (job) => {
     console.log("job received");
     console.log("job name:", job.name);
     console.log("job data:", job.data);
 
     try {
-      const { action } = job.data;
+      const { action, document } = job.data;
 
       if (action === "DELETE") {
-        const { productId } = job.data;
+        console.log("deleting product from meilisearch", document.id);
 
-        console.log("deleting product from meilisearch", productId);
+        await meiliClient.index(INDEX).deleteDocument(document.id);
 
-        await meiliClient.index(INDEX).deleteDocument(productId);
+        console.log("product deleted from meilisearch", document.id);
 
-        console.log("product deleted from meilisearch", productId);
-
-        return { deleted: true, productId };
+        return { deleted: true, productId: document.id };
       }
 
       if (action === "ADD") {
-        const {
-          id,
-          title,
-          description,
-          category,
-          isActive,
-          availableSizes,
-          createdAt,
-        } = job.data;
+        console.log("indexing product", document.id);
 
-        console.log("indexing product", id);
+        await meiliClient.index(INDEX).addDocuments([document]);
 
-        await meiliClient.index(INDEX).addDocuments([
-          {
-            id,
-            title,
-            description,
-            category,
-            isActive,
-            availableSizes,
-            createdAt,
-          },
-        ]);
+        console.log("product indexed in meilisearch", document.id);
 
-        console.log("product indexed in meilisearch", id);
-
-        return { indexed: true, productId: id };
+        return { indexed: true, productId: document.id };
       }
 
       throw new Error(`UNKNOWN_ACTION: ${action}`);
@@ -64,8 +42,9 @@ new Worker(
   },
   {
     connection: redisConnection,
-    concurrency: 5,
+    concurrency: 5
   }
 );
 
-console.log("Meilisearch worker started for queue product-search-sync");
+console.log("Meilisearch worker started for queue productSearchQueue");
+

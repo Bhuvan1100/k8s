@@ -12,10 +12,12 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.19.1",
+    "bullmq": "^5.66.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "pino": "^10.2.0",
-    "prisma": "^6.19.1"
+    "prisma": "^6.19.1",
+    "redis": "^5.10.0"
   },
   "devDependencies": {
     "pino-pretty": "^13.1.3"

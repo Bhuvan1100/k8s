@@ -1,56 +1,33 @@
 import express from "express";
-import accessLoggerMiddleware from "./middleware/accessLogger";
+import accessLoggerMiddleware from "./middleware/accessLogger.js";
+import addToCart from "./routes/addToCart.js";
+import updateCartItemQuantity from "./routes/quantityChange.js";
+import removeCartItem from "./routes/deleteCart.js";
+import getCartItems from "./routes/getCart.js";
+import { checkoutCart } from "./routes/cartcheckout.js";
+import { startBuyerOrderConsumer } from "./consumer/buyerOrder.consumer.js";
+
 const app = express();
 const PORT = process.env.PORT || 4002;
 
 app.use(express.json());
-app.use(accessLoggerMiddleware)
+app.use(accessLoggerMiddleware);
 
+app.post("/buyer/cart/additem", addToCart);
+app.patch("/buyer/cart/update", updateCartItemQuantity);
+app.delete("/buyer/cart/delete", removeCartItem);
+app.post("/buyer/cart/getcart", getCartItems);
+app.post("/buyer/cart/cartcheckout", checkoutCart);
 
-app.put("/profile/update-number", (req, res) => {
-  res.status(501).json({ message: "Update profile route" });
-});
+const startServer = async () => {
+  await startBuyerOrderConsumer();
 
-app.post("/address/add", (req, res) => {
-  res.status(501).json({ message: "Add address route" });
-});
+  app.listen(PORT, () => {
+    console.log(`Buyer Domain Service running on port ${PORT}`);
+  });
+};
 
-app.put("/address/update/:addressId", (req, res) => {
-  res.status(501).json({ message: "Update address route" });
-});
-
-app.delete("/address/delete/:addressId", (req, res) => {
-  res.status(501).json({ message: "Delete address route" });
-});
-
-app.get("/address", (req, res) => {
-  res.status(501).json({ message: "Get addresses route" });
-});
-
-app.post("/cart/add", (req, res) => {
-  res.status(501).json({ message: "Add to cart route" });
-});
-
-app.delete("/cart/remove/:productId", (req, res) => {
-  res.status(501).json({ message: "Remove from cart route" });
-});
-
-app.get("/cart", (req, res) => {
-  res.status(501).json({ message: "Get cart route" });
-});
-
-app.post("/order/place", (req, res) => {
-  res.status(501).json({ message: "Place order route" });
-});
-
-app.get("/order/current", (req, res) => {
-  res.status(501).json({ message: "Get current order route" });
-});
-
-app.get("/order/history", (req, res) => {
-  res.status(501).json({ message: "Get order history route" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Buyer Domain Service running on port ${PORT}`);
+startServer().catch((error) => {
+  console.error("Failed to start Buyer Service", error);
+  process.exit(1);
 });
