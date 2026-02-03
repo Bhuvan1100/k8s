@@ -38,6 +38,7 @@ model Product {
 
   @@index([sellerId])
   @@index([category])
+  @@unique([sellerId, title, category, subCategory])
 }
 
 model ProductVariant {

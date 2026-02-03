@@ -13,7 +13,7 @@ import errorHandlerMiddleware from "./middleware/errorHandler.js"
 import rateLimitMiddleware from "./middleware/rateLimit.js"
 
 import { login, signup } from "./router/auth.js"
-import { addProduct, deleteProduct } from "./router/seller.js"
+import { addProduct, deleteProduct } from "./router/product.js"
 import { commentProduct, rateProduct } from "./router/review.js"
 import { getProduct } from "./router/productDetail.js"
 import { getProductsByCategory, getProductsByQuery } from "./router/search.js"
@@ -31,6 +31,9 @@ import {
 } from "./router/order.js"
 
 import { paymentCallback } from "./router/payment.js"
+
+import { createSellerDetail } from "./router/seller.js"
+
 import appLogger from "./logger/appLogger.js"
 
 const app = express()
@@ -71,6 +74,8 @@ app.post("/buyer/cart/getcart", getCartItems)
 app.post("/checkout/preview", proceedToCheckout)
 app.post("/checkout/session/details", fillCheckoutDetails)
 app.post("/checkout/session/commit", commitCheckoutSession)
+
+app.post("/seller/sellerdetail", createSellerDetail)
 
 app.post("/order/payment", paymentCallback)
 

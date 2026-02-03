@@ -50,32 +50,34 @@ model Address {
   pincode   String
   country   String
 
-  sellerId  String   @unique
-  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerUserId String   @unique
+  seller       Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model SellerProduct {
-  id        String   @id @default(uuid())
-  sellerId      String
-  seller        Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  id             String   @id @default(uuid())
 
-  title         String
-  defaultImage  String?
-  isActive      Boolean  @default(true)
+  sellerUserId   String
+  seller         Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
 
-  variants      SellerProductVariant[]
+  title          String
+  defaultImage   String?
+  isActive       Boolean  @default(true)
+
+  variants       SellerProductVariant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([sellerId])
+  @@index([sellerUserId])
 }
 
 model SellerProductVariant {
   id                String   @id @default(uuid())
+
   productId         String
   product           SellerProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 
@@ -92,8 +94,8 @@ model SellerProductVariant {
 model SellerOrderItem {
   id               String   @id @default(uuid())
 
-  sellerId         String
-  seller           Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerUserId     String
+  seller           Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
 
   orderId          String
 
@@ -113,7 +115,7 @@ model SellerOrderItem {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  @@index([sellerId])
+  @@index([sellerUserId])
   @@index([orderId])
   @@index([productId])
 }
@@ -153,4 +155,3 @@ enum Size {
   MEDIUM
   LARGE
 }
-

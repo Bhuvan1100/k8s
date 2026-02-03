@@ -5,9 +5,9 @@ import { redisConnection } from "../config/redisClient.js";
 export const sellerProductWorker = new Worker(
   "addItemToSeller",
   async (job) => {
-    const { action, sellerId, productId, variants, isActive } = job.data;
+    const { action, sellerUserId, productId, variants, isActive } = job.data;
 
-    if (!sellerId || !productId) {
+    if (!sellerUserId || !productId) {
       throw new Error("Invalid job payload");
     }
 
@@ -19,16 +19,21 @@ export const sellerProductWorker = new Worker(
 
         if (!existingProduct) {
           await tx.sellerProduct.create({
-            data: {
-              id: productId,
-              sellerId,
-              title: "",
-              defaultImage: null,
-              isActive: isActive ?? true,
-              createdAt: new Date(),
-              updatedAt: new Date()
+          data: {
+            id: productId,
+            title: "",
+            defaultImage: null,
+            isActive: isActive ?? true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+
+            seller: {
+              connect: {
+                userId:sellerUserId
+              }
             }
-          });
+          }
+        });
         }
 
         if (Array.isArray(variants)) {

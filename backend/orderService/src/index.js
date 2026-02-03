@@ -23,7 +23,7 @@ app.post("/order/:orderId/return", requestReturn)
 app.post("/checkout/preview",checkoutPreview)
 app.post("/checkout/session/details", fillCheckoutSessionDetails)
 app.post("/checkout/session/commit", commitCheckoutSession)
-app.post("/order/payment", handlePayment)
+app.post("/orders/payment", handlePayment)
 
 
 const start = async () => {

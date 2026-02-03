@@ -1,9 +1,11 @@
-import express from "express";
-import prisma from "../../../productservice/src/config/prismaClient.js";
+import prisma from "../config/prismaClient.js";
+import { roleUpdaterQueue } from "../queue/roleUpdater.js";
 
-const router = express.Router();
+export const createSellerDetail = async (req, res) => {
+  const requestId = req.headers["x-request-id"];
 
-router.post("/add-detail", async (req, res) => {
+  console.log("SELLER SERVICE | CREATE SELLER", { requestId });
+
   try {
     const {
       userId,
@@ -16,50 +18,82 @@ router.post("/add-detail", async (req, res) => {
       address
     } = req.body;
 
-    if (!userId || !businessName || !sellerType || !email) {
+    const finalUserId = req.user?.userId || userId;
+
+    if (!finalUserId || !businessName || !sellerType || !email) {
       return res.status(400).json({
         message: "Missing required seller fields"
       });
     }
 
-    const seller = await prisma.seller.create({
-      data: {
-        userId,
-        businessName,
-        sellerType,
-        email,
-        phone,
-        panNumber,
-        gstNumber,
-        status: "PENDING",
-        kycStatus: panNumber || gstNumber ? "PENDING" : "NOT_SUBMITTED",
-        address: address
-          ? {
-              create: {
-                line1: address.line1,
-                line2: address.line2,
-                city: address.city,
-                state: address.state,
-                pincode: address.pincode,
-                country: address.country
+    const existingSeller = await prisma.seller.findUnique({
+      where: { userId: finalUserId }
+    });
+
+    if (existingSeller) {
+      return res.status(200).json({
+        message: "Seller already exists for this user",
+        existingSeller
+      });
+    }
+
+    const seller = await prisma.$transaction(async (tx) => {
+      return tx.seller.create({
+        data: {
+          userId: finalUserId,
+          businessName,
+          sellerType,
+          email,
+          phone,
+          panNumber,
+          gstNumber,
+          status: "ACTIVE",
+          isVerified: true,
+          kycStatus: "VERIFIED",
+          address: address
+            ? {
+                create: {
+                  line1: address.line1,
+                  line2: address.line2,
+                  city: address.city,
+                  state: address.state,
+                  pincode: address.pincode,
+                  country: address.country
+                }
               }
-            }
-          : undefined
+            : undefined
+        }
+      });
+    });
+    await roleUpdaterQueue.add(
+      "update-role",
+      {
+        userId: finalUserId,
+        newRole: "SELLER"
+      },
+      {
+        jobId: `role-update-${finalUserId}`, // idempotent
+        removeOnComplete: true
       }
+    );
+
+
+    
+
+    res.status(201).json({
+      message: "Seller created successfully",
+      sellerId: seller.id
+    });
+  } catch (err) {
+    console.error("SELLER SERVICE ERROR", {
+      requestId,
+      error: err.message
     });
 
-    return res.status(201).json({
-      message: "Seller profile created successfully",
-      seller
-    });
-  } catch (error) {
-    console.error("SELLER DETAIL ERROR:", error);
+    
 
-    return res.status(500).json({
-      message: "Failed to create seller profile",
-      error: error.message
+    res.status(500).json({
+      message: "Failed to create seller"
     });
   }
-});
-
-export default router;
+};

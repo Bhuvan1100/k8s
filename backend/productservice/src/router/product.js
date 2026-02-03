@@ -31,7 +31,6 @@ export const addProduct = async (req, res) => {
       !Array.isArray(images) ||
       images.length === 0
     ) {
-      console.log("[addProduct] Response 400 - invalid product data");
       return res.status(400).json({
         message: "Invalid or missing product data"
       });
@@ -56,7 +55,6 @@ export const addProduct = async (req, res) => {
     }
 
     if (price == null) {
-      console.log("[addProduct] Response 400 - no price in variants");
       return res.status(400).json({
         message: "At least one variant must have a price"
       });
@@ -94,8 +92,8 @@ export const addProduct = async (req, res) => {
       }
     });
 
-    try {
-      await productSearchQueue.add(
+    productSearchQueue
+      .add(
         "index-product",
         {
           action: "ADD",
@@ -116,21 +114,18 @@ export const addProduct = async (req, res) => {
             createdAt: product.createdAt.getTime()
           }
         },
-        {
-          removeOnComplete: true,
-          attempts: 3
-        }
+        { removeOnComplete: true, attempts: 3 }
+      )
+      .catch(err =>
+        console.error("[addProduct] Search queue error", err.message)
       );
-    } catch (queueError) {
-      console.error("[addProduct] Search queue error", queueError.message);
-    }
 
-    try {
-      await addItemToSellerQueue.add(
+    addItemToSellerQueue
+      .add(
         "add-product-to-seller",
         {
           action: "ADD",
-          sellerId: product.sellerId,
+          sellerUserId: product.sellerId,
           productId: product.id,
           variants: product.variants.map(v => ({
             productVariantId: v.id,
@@ -138,18 +133,11 @@ export const addProduct = async (req, res) => {
           })),
           isActive: product.isActive
         },
-        {
-          removeOnComplete: true,
-          attempts: 3
-        }
+        { removeOnComplete: true, attempts: 3 }
+      )
+      .catch(err =>
+        console.error("[addProduct] Seller queue error", err.message)
       );
-    } catch (queueError) {
-      console.error("[addProduct] Seller queue error", queueError.message);
-    }
-
-    console.log("[addProduct] Response 201 - product created", {
-      productId: product.id
-    });
 
     return res.status(201).json({
       message: "Product added successfully",
@@ -157,11 +145,26 @@ export const addProduct = async (req, res) => {
     });
 
   } catch (error) {
+    if (error.code === "P2002") {
+      const existingProduct = await prisma.product.findFirst({
+        where: {
+          sellerId,
+          title,
+          category,
+          subCategory
+        }
+      });
+
+      return res.status(409).json({
+        message: "Product already exists for this seller",
+        productId: existingProduct?.id
+      });
+    }
+
     console.error("[addProduct] Internal error", error);
-    console.log("[addProduct] Response 500");
+
     return res.status(500).json({
-      message: "Failed to add product",
-      error: error.message
+      message: "Failed to add product"
     });
   }
 };

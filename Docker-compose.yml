@@ -134,6 +134,7 @@ services:
     depends_on:
       - postgres
       - kafka
+      - redis
 
 volumes:
   postgres_data:
