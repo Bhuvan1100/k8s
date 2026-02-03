@@ -1,60 +1,76 @@
-import prisma from "../config/prismaClient.js";
-import { kafka } from "../kafka/client.js";
+import prisma from "../config/prismaClient.js"
+import { kafka } from "../kafka/client.js"
+import appLogger from "../logger/appLogger.js"
+import errorLogger from "../logger/errorLogger.js"
 
 const consumer = kafka.consumer({
   groupId: "buyer-service-order-consumer"
-});
+})
 
 export const startBuyerOrderConsumer = async () => {
-  await consumer.connect();
+  await consumer.connect()
   await consumer.subscribe({
     topic: "order.success",
     fromBeginning: false
-  });
+  })
 
-  console.log("[BUYER-SERVICE] Listening to order.success");
+  appLogger.info("BUYER_ORDER_CONSUMER_STARTED", {
+    topic: "order.success"
+  })
+  console.log("[BUYER_ORDER_CONSUMER] listening to order.success")
 
   await consumer.run({
     eachMessage: async ({ message }) => {
-      const payload = JSON.parse(message.value.toString());
+      const payload = JSON.parse(message.value.toString())
 
-      const {
-        orderId,
-        userId,
-        billingSnapshot,
-        items,
-        paidAt
-      } = payload;
+      const { orderId, userId, items } = payload
+
+      appLogger.info("BUYER_ORDER_EVENT_RECEIVED", { orderId, userId })
+      console.log("[BUYER_ORDER_CONSUMER] message received", orderId, userId)
 
       if (!orderId || !userId || !items || items.length === 0) {
-        console.warn("[BUYER-SERVICE] Invalid order.success payload");
-        return;
+        console.log("[BUYER_ORDER_CONSUMER] invalid payload", orderId)
+        return
       }
 
       try {
         await prisma.$transaction(async (tx) => {
           const existingOrder = await tx.order.findUnique({
             where: { id: orderId }
-          });
+          })
 
           if (existingOrder) {
-            return;
+            console.log("[BUYER_ORDER_CONSUMER] order already exists", orderId)
+            return
+          }
+
+          
+          const user = await tx.user.findUnique({
+            where: { userId }
+          })
+
+          if (!user) {
+            throw new Error("USER_NOT_FOUND_FOR_ORDER")
           }
 
           const totalAmount = items.reduce(
             (sum, item) =>
               sum + Number(item.priceSnapshot) * item.quantity,
             0
-          );
+          )
+
+          console.log("[BUYER_ORDER_CONSUMER] creating buyer order", orderId)
 
           await tx.order.create({
             data: {
               id: orderId,
-              userId,
+              userId: user.id,
               status: "PAID",
               totalAmount,
-              billingSnapshot,
-              createdAt: paidAt ? new Date(paidAt) : new Date(),
+              billingSnapshot: payload.billingSnapshot,
+              createdAt: payload.paidAt
+                ? new Date(payload.paidAt)
+                : new Date(),
               items: {
                 create: items.map(item => ({
                   productId: item.productId,
@@ -66,20 +82,21 @@ export const startBuyerOrderConsumer = async () => {
                 }))
               }
             }
-          });
-        });
+          })
+        })
 
-        console.log(
-          `[BUYER-SERVICE] Order stored for buyer: ${orderId}`
-        );
+        appLogger.info("BUYER_ORDER_STORED", { orderId })
+        console.log("[BUYER_ORDER_CONSUMER] order stored", orderId)
 
       } catch (error) {
-        console.error(
-          "[BUYER-SERVICE] Failed to process order.success",
-          error
-        );
-        throw error; // important: let Kafka retry
+        errorLogger.error("BUYER_ORDER_CONSUMER_FAILED", {
+          orderId,
+          message: error.message,
+          stack: error.stack
+        })
+        console.log("[BUYER_ORDER_CONSUMER] failed", orderId)
+        throw error
       }
     }
-  });
-};
+  })
+}

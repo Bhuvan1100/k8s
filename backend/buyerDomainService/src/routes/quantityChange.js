@@ -1,53 +1,92 @@
-import prisma from "../config/prismaClient.js";
+import prisma from "../config/prismaClient.js"
+import appLogger from "../logger/appLogger.js"
+import errorLogger from "../logger/errorLogger.js"
 
 const updateCartItemQuantity = async (req, res) => {
-  const { userId, email, productVariantId, delta } = req.body;
+  const { userId, productVariantId } = req.body
 
-  const user = await prisma.user.upsert({
-    where: { userId },
-    update: { email },
-    create: { userId, email }
-  });
+  appLogger.info("UPDATE_CART_ITEM_REQUEST", { userId, productVariantId })
+  console.log("[UPDATE_CART_ITEM] request entered", userId, productVariantId)
 
-  const cart = await prisma.cart.findUnique({
-    where: { userId: user.id },
-    include: { items: true }
-  });
+  try {
+    const { email, delta } = req.body
 
-  if (!cart) {
-    return res.status(404).json({
-      message: "CART_NOT_FOUND"
-    });
-  }
+    console.log("[UPDATE_CART_ITEM] upserting user", userId)
 
-  const cartItem = cart.items.find(
-    (item) => item.productVariantId === productVariantId
-  );
+    const user = await prisma.user.upsert({
+      where: { userId },
+      update: { email },
+      create: { userId, email }
+    })
 
-  if (!cartItem) {
-    return res.status(404).json({
-      message: "ITEM_NOT_FOUND"
-    });
-  }
+    console.log("[UPDATE_CART_ITEM] fetching cart", user.id)
 
-  const deltaItemTotal = cartItem.priceSnapshot * delta;
+    const cart = await prisma.cart.findUnique({
+      where: { userId: user.id },
+      include: { items: true }
+    })
 
-  const updatedItem = await prisma.cartItem.update({
-    where: { id: cartItem.id },
-    data: {
-      quantity: { increment: delta },
-      totalPrice: { increment: deltaItemTotal }
+    if (!cart) {
+      console.log("[UPDATE_CART_ITEM] cart not found", user.id)
+      return res.status(404).json({
+        message: "CART_NOT_FOUND"
+      })
     }
-  });
 
-  await prisma.cart.update({
-    where: { id: cart.id },
-    data: {
-      totalPrice: { increment: deltaItemTotal }
+    const cartItem = cart.items.find(
+      (item) => item.productVariantId === productVariantId
+    )
+
+    if (!cartItem) {
+      console.log("[UPDATE_CART_ITEM] item not found", productVariantId)
+      return res.status(404).json({
+        message: "ITEM_NOT_FOUND"
+      })
     }
-  });
 
-  return res.status(200).json(updatedItem);
-};
+    const deltaItemTotal = cartItem.priceSnapshot * delta
 
-export default updateCartItemQuantity;
+    console.log("[UPDATE_CART_ITEM] updating cart item", cartItem.id)
+
+    const updatedItem = await prisma.cartItem.update({
+      where: { id: cartItem.id },
+      data: {
+        quantity: { increment: delta },
+        totalPrice: { increment: deltaItemTotal }
+      }
+    })
+
+    console.log("[UPDATE_CART_ITEM] updating cart total", cart.id)
+
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        totalPrice: { increment: deltaItemTotal }
+      }
+    })
+
+    appLogger.info("UPDATE_CART_ITEM_SUCCESS", {
+      userId,
+      productVariantId,
+      cartItemId: updatedItem.id
+    })
+    console.log("[UPDATE_CART_ITEM] success", userId, productVariantId)
+
+    return res.status(200).json(updatedItem)
+
+  } catch (error) {
+    errorLogger.error("UPDATE_CART_ITEM_FAILED", {
+      userId,
+      productVariantId,
+      message: error.message,
+      stack: error.stack
+    })
+    console.log("[UPDATE_CART_ITEM] failed", userId, productVariantId)
+
+    return res.status(500).json({
+      message: "Failed to update cart item"
+    })
+  }
+}
+
+export default updateCartItemQuantity

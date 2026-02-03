@@ -40,6 +40,7 @@ model Seller {
   @@index([status])
 }
 
+
 model Address {
   id        String   @id @default(uuid())
 
@@ -50,30 +51,32 @@ model Address {
   pincode   String
   country   String
 
-  sellerUserId String   @unique
-  seller       Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
+  sellerId  String   @unique
+  seller    Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 
 model SellerProduct {
-  id             String   @id @default(uuid())
+  id           String   @id @default(uuid())
 
-  sellerUserId   String
-  seller         Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
+  sellerId     String
+  seller       Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
-  title          String
-  defaultImage   String?
-  isActive       Boolean  @default(true)
+  title        String
+  defaultImage String?
+  isActive     Boolean  @default(true)
 
-  variants       SellerProductVariant[]
+  variants     SellerProductVariant[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([sellerUserId])
+  @@index([sellerId])
 }
+
 
 model SellerProductVariant {
   id                String   @id @default(uuid())
@@ -94,8 +97,8 @@ model SellerProductVariant {
 model SellerOrderItem {
   id               String   @id @default(uuid())
 
-  sellerUserId     String
-  seller           Seller   @relation(fields: [sellerUserId], references: [userId], onDelete: Cascade)
+  sellerId         String
+  seller           Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
 
   orderId          String
 
@@ -115,10 +118,11 @@ model SellerOrderItem {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
 
-  @@index([sellerUserId])
+  @@index([sellerId])
   @@index([orderId])
   @@index([productId])
 }
+
 
 enum SellerStatus {
   PENDING

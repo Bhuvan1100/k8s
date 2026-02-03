@@ -1,14 +1,22 @@
-import prisma from "../config/prismaClient.js";
+import prisma from "../config/prismaClient.js"
+import appLogger from "../logger/appLogger.js"
+import errorLogger from "../logger/errorLogger.js"
 
 export const getProductDetail = async (req, res) => {
-  try {
-    const { productId } = req.params;
+  const { productId } = req.params
 
+  appLogger.info("GET_PRODUCT_DETAIL_REQUEST", { productId })
+  console.log("[GET_PRODUCT_DETAIL] request entered", productId)
+
+  try {
     if (!productId) {
+      console.log("[GET_PRODUCT_DETAIL] missing productId")
       return res.status(400).json({
         message: "productId is required"
-      });
+      })
     }
+
+    console.log("[GET_PRODUCT_DETAIL] fetching product", productId)
 
     const product = await prisma.product.findUnique({
       where: { id: productId },
@@ -25,7 +33,6 @@ export const getProductDetail = async (req, res) => {
           ]
         },
         variants: {
-          
           select: {
             id: true,
             size: true,
@@ -50,13 +57,17 @@ export const getProductDetail = async (req, res) => {
           }
         }
       }
-    });
+    })
 
     if (!product || !product.isActive) {
+      console.log("[GET_PRODUCT_DETAIL] product not found or inactive", productId)
       return res.status(404).json({
         message: "Product not found"
-      });
+      })
     }
+
+    appLogger.info("GET_PRODUCT_DETAIL_SUCCESS", { productId })
+    console.log("[GET_PRODUCT_DETAIL] success", productId)
 
     return res.status(200).json({
       product: {
@@ -76,12 +87,18 @@ export const getProductDetail = async (req, res) => {
         variants: product.variants,
         comments: product.comments
       }
-    });
+    })
 
   } catch (error) {
-    console.error("getProductDetail error", error);
+    errorLogger.error("GET_PRODUCT_DETAIL_FAILED", {
+      productId,
+      message: error.message,
+      stack: error.stack
+    })
+    console.log("[GET_PRODUCT_DETAIL] failed", productId)
+
     return res.status(500).json({
       message: "Internal server error"
-    });
+    })
   }
-};
+}

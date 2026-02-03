@@ -51,7 +51,7 @@ export const addProduct = async (req, res) => {
     })
 
     res.status(err.response?.status || 500).json({
-      message: "Seller service failed"
+      message: "product service failed"
     })
   }
 }

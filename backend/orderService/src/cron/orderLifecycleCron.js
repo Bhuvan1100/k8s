@@ -2,7 +2,7 @@ import cron from "node-cron";
 import prisma from "../config/prismaClient.js";
 
 export const startOrderLifecycleCron = () => {
-  cron.schedule("*/1 * * * *", async () => {
+  cron.schedule("*/5 * * * *", async () => {
     console.log("Order lifecycle cron running");
 
     try {

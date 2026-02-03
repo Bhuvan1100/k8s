@@ -1,0 +1,59 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `sellerUserId` on the `Address` table. All the data in the column will be lost.
+  - You are about to drop the column `sellerUserId` on the `SellerOrderItem` table. All the data in the column will be lost.
+  - You are about to drop the column `sellerUserId` on the `SellerProduct` table. All the data in the column will be lost.
+  - A unique constraint covering the columns `[sellerId]` on the table `Address` will be added. If there are existing duplicate values, this will fail.
+  - Added the required column `sellerId` to the `Address` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `sellerId` to the `SellerOrderItem` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `sellerId` to the `SellerProduct` table without a default value. This is not possible if the table is not empty.
+
+*/
+-- DropForeignKey
+ALTER TABLE "Address" DROP CONSTRAINT "Address_sellerUserId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "SellerOrderItem" DROP CONSTRAINT "SellerOrderItem_sellerUserId_fkey";
+
+-- DropForeignKey
+ALTER TABLE "SellerProduct" DROP CONSTRAINT "SellerProduct_sellerUserId_fkey";
+
+-- DropIndex
+DROP INDEX "Address_sellerUserId_key";
+
+-- DropIndex
+DROP INDEX "SellerOrderItem_sellerUserId_idx";
+
+-- DropIndex
+DROP INDEX "SellerProduct_sellerUserId_idx";
+
+-- AlterTable
+ALTER TABLE "Address" DROP COLUMN "sellerUserId",
+ADD COLUMN     "sellerId" TEXT NOT NULL;
+
+-- AlterTable
+ALTER TABLE "SellerOrderItem" DROP COLUMN "sellerUserId",
+ADD COLUMN     "sellerId" TEXT NOT NULL;
+
+-- AlterTable
+ALTER TABLE "SellerProduct" DROP COLUMN "sellerUserId",
+ADD COLUMN     "sellerId" TEXT NOT NULL;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Address_sellerId_key" ON "Address"("sellerId");
+
+-- CreateIndex
+CREATE INDEX "SellerOrderItem_sellerId_idx" ON "SellerOrderItem"("sellerId");
+
+-- CreateIndex
+CREATE INDEX "SellerProduct_sellerId_idx" ON "SellerProduct"("sellerId");
+
+-- AddForeignKey
+ALTER TABLE "Address" ADD CONSTRAINT "Address_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "Seller"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SellerProduct" ADD CONSTRAINT "SellerProduct_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "Seller"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SellerOrderItem" ADD CONSTRAINT "SellerOrderItem_sellerId_fkey" FOREIGN KEY ("sellerId") REFERENCES "Seller"("id") ON DELETE CASCADE ON UPDATE CASCADE;

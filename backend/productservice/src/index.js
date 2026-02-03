@@ -2,8 +2,8 @@ import express from "express";
 import "dotenv/config";
 
 
-import { addProduct, deleteProduct } from "./router/product.js";
-import { getProductDetail } from "./router/getProduct.js";
+import { addProduct, deleteProduct } from "./router/addProduct.js";
+import { getProductDetail } from "./router/getProductDetail.js";
 import { addComment, addRating } from "./router/reviewProduct.js";
 import { softCheckProducts } from "./router/softcheck.js";
 import { reserveInventory } from "./router/inventoryReserve.js";

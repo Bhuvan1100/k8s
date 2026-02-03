@@ -88,6 +88,10 @@ export const startInventoryConsumer = async () => {
             isInStock: totalQuantity > 0
           });
         }
+        console.log(
+          "[PRODUCT-SERVICE] inventory updates count",
+          updates.length
+        )
 
         if (updates.length > 0) {
           await inventoryQueue.add(

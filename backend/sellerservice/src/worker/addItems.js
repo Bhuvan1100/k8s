@@ -1,39 +1,44 @@
-import { Worker } from "bullmq";
-import prisma from "../config/prismaClient.js";
-import { redisConnection } from "../config/redisClient.js";
+import { Worker } from "bullmq"
+import prisma from "../config/prismaClient.js"
+import { redisConnection } from "../config/redisClient.js"
 
 export const sellerProductWorker = new Worker(
   "addItemToSeller",
   async (job) => {
-    const { action, sellerUserId, productId, variants, isActive } = job.data;
+    const { action, sellerUserId, productId, variants, isActive } = job.data
 
     if (!sellerUserId || !productId) {
-      throw new Error("Invalid job payload");
+      throw new Error("Invalid job payload")
     }
+
+    const seller = await prisma.seller.findUnique({
+      where: { userId: sellerUserId }
+    })
+
+    if (!seller) {
+      throw new Error("Seller not found")
+    }
+
+    const sellerId = seller.id
 
     if (action === "ADD") {
       await prisma.$transaction(async (tx) => {
         const existingProduct = await tx.sellerProduct.findUnique({
           where: { id: productId }
-        });
+        })
 
         if (!existingProduct) {
           await tx.sellerProduct.create({
-          data: {
-            id: productId,
-            title: "",
-            defaultImage: null,
-            isActive: isActive ?? true,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-
-            seller: {
-              connect: {
-                userId:sellerUserId
-              }
+            data: {
+              id: productId,
+              sellerId,
+              title: "",
+              defaultImage: null,
+              isActive: isActive ?? true,
+              createdAt: new Date(),
+              updatedAt: new Date()
             }
-          }
-        });
+          })
         }
 
         if (Array.isArray(variants)) {
@@ -54,12 +59,12 @@ export const sellerProductWorker = new Worker(
                 createdAt: new Date(),
                 updatedAt: new Date()
               }
-            });
+            })
           }
         }
-      });
+      })
 
-      return;
+      return
     }
 
     if (action === "DELETE") {
@@ -70,7 +75,7 @@ export const sellerProductWorker = new Worker(
             isActive: false,
             updatedAt: new Date()
           }
-        });
+        })
 
         await tx.sellerProductVariant.updateMany({
           where: { productId },
@@ -78,25 +83,25 @@ export const sellerProductWorker = new Worker(
             isActive: false,
             updatedAt: new Date()
           }
-        });
-      });
+        })
+      })
 
-      return;
+      return
     }
   },
   {
     connection: redisConnection,
     concurrency: 5
   }
-);
+)
 
 sellerProductWorker.on("completed", (job) => {
-  console.log(`[SELLER-WORKER] Job completed: ${job.id}`);
-});
+  console.log(`[SELLER-WORKER] Job completed: ${job.id}`)
+})
 
 sellerProductWorker.on("failed", (job, err) => {
   console.error(
     `[SELLER-WORKER] Job failed: ${job?.id}`,
     err.message
-  );
-});
+  )
+})

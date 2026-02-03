@@ -1,27 +1,27 @@
-import prisma from "../config/prismaClient.js";
-import { kafka } from "../kafka/client.js";
+import prisma from "../config/prismaClient.js"
+import { kafka } from "../kafka/client.js"
 
 const consumer = kafka.consumer({
   groupId: "seller-service-order-consumer"
-});
+})
 
 export const startSellerOrderConsumer = async () => {
-  await consumer.connect();
+  await consumer.connect()
   await consumer.subscribe({
     topic: "order.success",
     fromBeginning: false
-  });
+  })
 
-  console.log("[SELLER-SERVICE] Listening to order.success");
+  console.log("[SELLER-SERVICE] Listening to order.success")
 
   await consumer.run({
     eachMessage: async ({ message }) => {
-      const payload = JSON.parse(message.value.toString());
+      const payload = JSON.parse(message.value.toString())
 
-      const { orderId, items, paidAt } = payload;
+      const { orderId, items, paidAt } = payload
 
-      if (!orderId || !items || items.length === 0) {
-        return;
+      if (!orderId || !Array.isArray(items) || items.length === 0) {
+        return
       }
 
       try {
@@ -30,10 +30,10 @@ export const startSellerOrderConsumer = async () => {
             const sellerProduct = await tx.sellerProduct.findUnique({
               where: { id: item.productId },
               select: { sellerId: true }
-            });
+            })
 
             if (!sellerProduct) {
-              continue;
+              continue
             }
 
             const exists = await tx.sellerOrderItem.findFirst({
@@ -41,10 +41,10 @@ export const startSellerOrderConsumer = async () => {
                 orderId,
                 productVariantId: item.productVariantId
               }
-            });
+            })
 
             if (exists) {
-              continue;
+              continue
             }
 
             await tx.sellerOrderItem.create({
@@ -58,7 +58,7 @@ export const startSellerOrderConsumer = async () => {
                 status: "PAID",
                 soldAt: paidAt ? new Date(paidAt) : new Date()
               }
-            });
+            })
 
             await tx.seller.update({
               where: { id: sellerProduct.sellerId },
@@ -68,21 +68,21 @@ export const startSellerOrderConsumer = async () => {
                   increment: item.priceSnapshot * item.quantity
                 }
               }
-            });
+            })
           }
-        });
+        })
 
         console.log(
           `[SELLER-SERVICE] Order processed for sellers: ${orderId}`
-        );
+        )
 
       } catch (error) {
         console.error(
           "[SELLER-SERVICE] Failed to process order.success",
           error
-        );
-        throw error;
+        )
+        throw error
       }
     }
-  });
-};
+  })
+}

@@ -1,39 +1,44 @@
-import prisma from "../config/prismaClient.js";
+import prisma from "../config/prismaClient.js"
 
 export const getOrderStatus = async (req, res) => {
   try {
-    const { orderId } = req.params;
+    const { orderId, productId } = req.body
 
-    if (!orderId) {
+    if (!orderId || !productId) {
       return res.status(400).json({
         success: false,
-        message: "orderId is required"
-      });
+        message: "orderId and productId are required"
+      })
     }
 
-    const order = await prisma.order.findUnique({
-      where: { id: orderId },
-      select: { status: true }
-    });
+    const orderItem = await prisma.orderItem.findFirst({
+      where: {
+        orderId,
+        productId
+      },
+      select: {
+        status: true
+      }
+    })
 
-    if (!order) {
+    if (!orderItem) {
       return res.status(404).json({
         success: false,
-        message: "Order not found"
-      });
+        message: "Order item not found"
+      })
     }
 
     return res.status(200).json({
       success: true,
-      status: order.status
-    });
+      status: orderItem.status
+    })
 
   } catch (error) {
-    console.error("Get order status error:", error);
+    console.error("Get order item status error", error)
 
     return res.status(500).json({
       success: false,
       message: "Failed to fetch order status"
-    });
+    })
   }
-};
+}

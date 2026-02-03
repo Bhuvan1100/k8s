@@ -5,7 +5,7 @@ import { meiliClient } from "../infra/meilisearch.js";
 const INDEX = "products";
 
 new Worker(
-  "inventoryQueue",
+  "inventory-queue",
   async (job) => {
     console.log("inventory sync job received", job.data);
 
