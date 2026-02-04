@@ -1,5 +1,6 @@
 import prisma from "../config/prismaClient.js"
 import { kafka } from "../kafka/client.js"
+import { orderCreatedSellerQueue } from "../queue/notify-orderCreated.js"
 
 const consumer = kafka.consumer({
   groupId: "seller-service-order-consumer"
@@ -24,9 +25,13 @@ export const startSellerOrderConsumer = async () => {
         return
       }
 
+      
+      const queueJobs = []
+
       try {
         await prisma.$transaction(async (tx) => {
           for (const item of items) {
+            // 1️⃣ find seller for this product
             const sellerProduct = await tx.sellerProduct.findUnique({
               where: { id: item.productId },
               select: { sellerId: true }
@@ -36,6 +41,7 @@ export const startSellerOrderConsumer = async () => {
               continue
             }
 
+            
             const exists = await tx.sellerOrderItem.findFirst({
               where: {
                 orderId,
@@ -47,6 +53,7 @@ export const startSellerOrderConsumer = async () => {
               continue
             }
 
+           
             await tx.sellerOrderItem.create({
               data: {
                 sellerId: sellerProduct.sellerId,
@@ -60,6 +67,7 @@ export const startSellerOrderConsumer = async () => {
               }
             })
 
+           
             await tx.seller.update({
               where: { id: sellerProduct.sellerId },
               data: {
@@ -69,8 +77,40 @@ export const startSellerOrderConsumer = async () => {
                 }
               }
             })
+
+          
+            const seller = await tx.seller.findUnique({
+              where: { id: sellerProduct.sellerId },
+              select: { email: true }
+            })
+
+            if (seller?.email) {
+              queueJobs.push({
+                orderId,
+                productId: item.productId,
+                productVariantId: item.productVariantId,
+                email: seller.email,
+                sellerId: sellerProduct.sellerId
+              })
+            }
           }
         })
+
+        
+        for (const job of queueJobs) {
+          await orderCreatedSellerQueue.add(
+            "notify-order-created-seller",
+            {
+              orderId: job.orderId,
+              productId: job.productId,
+              productVariantId: job.productVariantId,
+              email: job.email
+            },
+            {
+              jobId: `${job.orderId}-${job.productVariantId}`
+            }
+          )
+        }
 
         console.log(
           `[SELLER-SERVICE] Order processed for sellers: ${orderId}`

@@ -3,7 +3,7 @@ import { redisConnection } from "../infra/redisConnection.js";
 import mailer from "../infra/mailer.js";
 
 new Worker(
-  "ordered-item",
+  "order-created-buyer",
   async job => {
     const { email, orderId } = job.data;
 

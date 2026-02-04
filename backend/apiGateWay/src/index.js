@@ -11,6 +11,7 @@ import { requestIdMiddleware } from "./middleware/requestId.js"
 import accessLoggerMiddleware from "./middleware/accessLogger.js"
 import errorHandlerMiddleware from "./middleware/errorHandler.js"
 import rateLimitMiddleware from "./middleware/rateLimit.js"
+import jwtCookieMiddleware from "./middleware/verification.js"
 
 import { login, signup } from "./router/auth.js"
 import { addProduct, deleteProduct } from "./router/product.js"
@@ -53,8 +54,10 @@ app.use(cookieParser())
 app.use(requestIdMiddleware)
 app.use(accessLoggerMiddleware)
 
+
 app.post("/auth/login", login)
 app.post("/auth/signup", signup)
+app.use(jwtCookieMiddleware)
 
 app.post("/seller/product", addProduct)
 app.delete("/seller/product/:productId", deleteProduct)

@@ -2,6 +2,7 @@ import prisma from "../config/prismaClient.js"
 import { kafka } from "../kafka/client.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
+import { orderCreatedQueue } from "../queue/notify-orderCompleted.js"
 
 const consumer = kafka.consumer({
   groupId: "buyer-service-order-consumer"
@@ -33,6 +34,9 @@ export const startBuyerOrderConsumer = async () => {
         return
       }
 
+      let useremail = null
+      let orderCreated = false
+
       try {
         await prisma.$transaction(async (tx) => {
           const existingOrder = await tx.order.findUnique({
@@ -44,7 +48,6 @@ export const startBuyerOrderConsumer = async () => {
             return
           }
 
-          
           const user = await tx.user.findUnique({
             where: { userId }
           })
@@ -52,6 +55,8 @@ export const startBuyerOrderConsumer = async () => {
           if (!user) {
             throw new Error("USER_NOT_FOUND_FOR_ORDER")
           }
+
+          useremail = user.email
 
           const totalAmount = items.reduce(
             (sum, item) =>
@@ -83,7 +88,22 @@ export const startBuyerOrderConsumer = async () => {
               }
             }
           })
+
+          orderCreated = true
         })
+
+        if (orderCreated && useremail) {
+          await orderCreatedQueue.add(
+            "notify-order-completed",
+            {
+              orderId,
+              email: useremail
+            },
+            {
+              jobId: orderId
+            }
+          )
+        }
 
         appLogger.info("BUYER_ORDER_STORED", { orderId })
         console.log("[BUYER_ORDER_CONSUMER] order stored", orderId)
