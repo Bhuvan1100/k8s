@@ -156,7 +156,7 @@ export const deleteCartItem = async (req, res) => {
   }
 }
 
-export const getCartItems = async (req, res) => {
+export const getCartItemsforUserContext = async (req, res) => {
   console.log("GET_CART request received", {
     requestId: req.requestId
   })

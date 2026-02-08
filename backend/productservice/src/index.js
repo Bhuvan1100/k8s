@@ -7,6 +7,7 @@ import { getProductDetail } from "./router/getProductDetail.js";
 import { addComment, addRating } from "./router/reviewProduct.js";
 import { softCheckProducts } from "./router/softcheck.js";
 import { reserveInventory } from "./router/inventoryReserve.js";
+import { getCartProductForUI } from "./router/getCartProductUI.js";
 
 import { startInventoryConsumer } from "./consumer/inventoryDecrease.consumer.js";
 import { startInventoryFailureConsumer } from "./consumer/inventoryRelease.consumer.js";
@@ -22,6 +23,8 @@ app.delete("/seller/product/:productId", deleteProduct);
 app.post("/product/rate/:productId", addRating);
 app.post("/product/comment/:productId", addComment);
 app.post("/product/reserve", reserveInventory)
+
+app.post("/product/cart/ui",getCartProductForUI)
 
 app.get("/product/productdetail/:productId", getProductDetail);
 app.post("/product/softcheck", softCheckProducts);

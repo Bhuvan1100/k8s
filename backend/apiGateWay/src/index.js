@@ -13,8 +13,9 @@ import errorHandlerMiddleware from "./middleware/errorHandler.js"
 import rateLimitMiddleware from "./middleware/rateLimit.js"
 import jwtCookieMiddleware from "./middleware/verification.js"
 
+import verifyUser from "./router/verify.js"
 import { login, signup } from "./router/auth.js"
-import { addProduct, deleteProduct } from "./router/product.js"
+import { addProduct, deleteProduct, getCartProductForUI } from "./router/product.js"
 import { commentProduct, rateProduct } from "./router/review.js"
 import { getProduct } from "./router/productDetail.js"
 import { getProductsByCategory, getProductsByQuery } from "./router/search.js"
@@ -22,7 +23,7 @@ import {
   addItemToCart,
   deleteCartItem,
   updateCartItem,
-  getCartItems
+  getCartItemsforUserContext
 } from "./router/cart.js"
 
 import {
@@ -45,6 +46,8 @@ app.get("/health", (req, res) => {
   res.status(200).send("GATEWAY OK")
 })
 
+app.post("/verifyUser", verifyUser)
+
 app.get("/metrics", prometheusMetricsEndpoint)
 
 app.use(prometheusMiddleware)
@@ -61,6 +64,7 @@ app.use(jwtCookieMiddleware)
 
 app.post("/seller/product", addProduct)
 app.delete("/seller/product/:productId", deleteProduct)
+app.post("/product/cart/ui", getCartProductForUI)
 
 app.post("/product/comment/:productId", commentProduct)
 app.post("/product/rate/:productId", rateProduct)
@@ -72,7 +76,7 @@ app.get("/search/:query", getProductsByQuery)
 app.post("/buyer/cart/additem", addItemToCart)
 app.patch("/buyer/cart/update", updateCartItem)
 app.delete("/buyer/cart/delete", deleteCartItem)
-app.post("/buyer/cart/getcart", getCartItems)
+app.post("/buyer/cart/getcart", getCartItemsforUserContext)
 
 app.post("/checkout/preview", proceedToCheckout)
 app.post("/checkout/session/details", fillCheckoutDetails)
