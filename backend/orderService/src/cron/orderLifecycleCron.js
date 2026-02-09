@@ -8,7 +8,24 @@ export const startOrderLifecycleCron = () => {
     try {
       const now = new Date();
 
-      // ORDER_PROCESSING -> SHIPPING
+      const paidToProcessing = await prisma.order.updateMany({
+        where: {
+          status: "PAID"
+        },
+        data: {
+          status: "ORDER_PROCESSING",
+          processingUntil: new Date(
+            now.getTime() + 1 * 24 * 60 * 60 * 1000
+          )
+        }
+      });
+
+      if (paidToProcessing.count > 0) {
+        console.log(
+          `Moved ${paidToProcessing.count} orders from PAID to ORDER_PROCESSING`
+        );
+      }
+
       const processingToShipping = await prisma.order.updateMany({
         where: {
           status: "ORDER_PROCESSING",
@@ -30,7 +47,6 @@ export const startOrderLifecycleCron = () => {
         );
       }
 
-      // SHIPPING -> DELIVERED
       const shippingToDelivered = await prisma.order.updateMany({
         where: {
           status: "SHIPPING",
@@ -53,7 +69,6 @@ export const startOrderLifecycleCron = () => {
         );
       }
 
-      // RETURN_REQUESTED -> RETURN_PROCESSING (after 1 day)
       const returnRequestedToProcessing = await prisma.order.updateMany({
         where: {
           status: "RETURN_REQUESTED",
@@ -75,7 +90,6 @@ export const startOrderLifecycleCron = () => {
         );
       }
 
-      // RETURN_PROCESSING -> REFUND_INITIATED (after 3 days)
       const returnProcessingToRefund = await prisma.order.updateMany({
         where: {
           status: "RETURN_PROCESSING",
@@ -95,7 +109,6 @@ export const startOrderLifecycleCron = () => {
         );
       }
 
-      // REFUND_INITIATED -> RETURNED_SUCCESS (after 1 day)
       const refundToReturnedSuccess = await prisma.order.updateMany({
         where: {
           status: "REFUND_INITIATED",
