@@ -2,15 +2,17 @@ import prisma from "../config/prismaClient.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
 
-
 export const signup = async (req, res) => {
-  const requestId = req.headers["x-request-id"]
+  const requestId = req.requestId
 
   try {
-    console.log(req.body)
+    console.log(`[${requestId}] SIGNUP request body`, req.body)
+
     const { email } = req.body
 
     if (!email) {
+      console.log(`[${requestId}] SIGNUP failed: email missing`)
+
       appLogger.warn(
         { requestId },
         "Signup failed: email missing"
@@ -28,14 +30,14 @@ export const signup = async (req, res) => {
         data: { email }
       })
 
-      console.log("[SIGNUP] User created:", user.id)
+      console.log(`[${requestId}] SIGNUP user created: ${user.id}`)
 
       appLogger.info(
         { requestId, userId: user.id, email },
         "User created during signup"
       )
     } else {
-      console.log("[SIGNUP] User already exists:", user.id)
+      console.log(`[${requestId}] SIGNUP user already exists: ${user.id}`)
 
       appLogger.info(
         { requestId, userId: user.id, email },
@@ -50,12 +52,12 @@ export const signup = async (req, res) => {
       roles: user.roles
     })
   } catch (err) {
-    console.error("[SIGNUP ERROR]", err.message)
+    console.error(`[${requestId}] SIGNUP ERROR`, err)
 
     errorLogger.error(
       {
         requestId,
-        err: err.message,
+        error: err.message,
         stack: err.stack
       },
       "Signup failed"
@@ -66,12 +68,16 @@ export const signup = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-  const requestId = req.headers["x-request-id"]
+  const requestId = req.requestId
 
   try {
+    console.log(`[${requestId}] LOGIN request body`, req.body)
+
     const { email } = req.body
 
     if (!email) {
+      console.log(`[${requestId}] LOGIN failed: email missing`)
+
       appLogger.warn(
         { requestId },
         "Login failed: email missing"
@@ -85,6 +91,8 @@ export const login = async (req, res) => {
     })
 
     if (!user) {
+      console.log(`[${requestId}] LOGIN user not found: ${email}`)
+
       appLogger.info(
         { requestId, email },
         "Login failed: user not found"
@@ -93,7 +101,7 @@ export const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" })
     }
 
-    console.log("[LOGIN] User authenticated:", user.id)
+    console.log(`[${requestId}] LOGIN user authenticated: ${user.id}`)
 
     appLogger.info(
       { requestId, userId: user.id, email },
@@ -107,12 +115,12 @@ export const login = async (req, res) => {
       roles: user.roles
     })
   } catch (err) {
-    console.error("[LOGIN ERROR]", err.message)
+    console.error(`[${requestId}] LOGIN ERROR`, err)
 
     errorLogger.error(
       {
         requestId,
-        err: err.message,
+        error: err.message,
         stack: err.stack
       },
       "Login failed"

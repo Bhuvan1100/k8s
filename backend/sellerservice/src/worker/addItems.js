@@ -95,6 +95,10 @@ export const sellerProductWorker = new Worker(
   }
 )
 
+sellerProductWorker.on("ready", () => {
+  console.log("[ADD_DELETE_ITEM_WORKER] ready");
+});
+
 sellerProductWorker.on("completed", (job) => {
   console.log(`[SELLER-WORKER] Job completed: ${job.id}`)
 })

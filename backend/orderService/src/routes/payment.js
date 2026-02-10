@@ -55,6 +55,7 @@ export const handlePayment = async (req, res) => {
         orderId: updatedOrder.id,
         userId: updatedOrder.userId,
         billingSnapshot: updatedOrder.billingSnapshot,
+        userDetailSnapshot: updatedOrder.userDetailSnapshot,
         items: order.items.map(item => ({
           productId: item.productId,
           productVariantId: item.productVariantId,

@@ -73,6 +73,7 @@ export const startBuyerOrderConsumer = async () => {
               status: "PAID",
               totalAmount,
               billingSnapshot: payload.billingSnapshot,
+              addressSnapshot : payload.userDetailSnapshot,
               createdAt: payload.paidAt
                 ? new Date(payload.paidAt)
                 : new Date(),

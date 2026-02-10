@@ -6,7 +6,7 @@ export const kafka = new Kafka({
   brokers: ["kafka:9092"],
   retry: {
     initialRetryTime: 300,
-    retries: 5
+    retries: 10
   },
   logLevel: logLevel.NOTHING
 });

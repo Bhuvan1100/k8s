@@ -37,4 +37,4 @@ new Worker(
   }
 );
 
-console.log("Ordered-item email worker started");
+console.log("Ordered-created-buyer email worker started");

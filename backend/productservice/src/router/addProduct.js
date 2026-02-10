@@ -49,9 +49,9 @@ export const addProduct = async (req, res) => {
 
     for (const size of sizePriority) {
       const variant = variants.find(v => v.size === size)
-      if (variant) {
-        price = variant.salePrice ?? variant.price
-        if (price != null) break
+      if (variant && variant.price != null) {
+        price = variant.price
+        break
       }
     }
 
@@ -80,8 +80,7 @@ export const addProduct = async (req, res) => {
             totalQuantity: v.totalQuantity,
             reservedQuantity: 0,
             availableQuantity: v.totalQuantity,
-            price: v.price ?? null,
-            salePrice: v.salePrice ?? null
+            price: v.price
           }))
         },
         images: {
@@ -159,33 +158,25 @@ export const addProduct = async (req, res) => {
 
   } catch (error) {
     if (error.code === "P2002") {
-      const existingProduct = await prisma.product.findFirst({
-        where: {
-          userId,
-          title,
-          category,
-          subCategory
-        }
-      })
-
-      console.log("[ADD_PRODUCT] duplicate product", userId)
-      return res.status(409).json({
-        message: "Product already exists for this user",
-        productId: existingProduct?.id
-      })
-    }
-
-    errorLogger.error("ADD_PRODUCT_FAILED", {
+      errorLogger.error("ADD_PRODUCT_FAILED", {
       userId,
       message: error.message,
       stack: error.stack
-    })
-    console.log("[ADD_PRODUCT] failed", userId)
+      })
+      console.log("[ADD_PRODUCT] failed", userId)
+
+      if (error.code === "P2002") {
+        return res.status(409).json({
+          message: "Product already exists for this user"
+        })
+      }
+    }
+
+    
 
     return res.status(500).json({ message: "Failed to add product" })
   }
 }
-
 
 export const deleteProduct = async (req, res) => {
   const { productId } = req.params

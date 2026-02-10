@@ -31,7 +31,7 @@ export const startSellerOrderConsumer = async () => {
       try {
         await prisma.$transaction(async (tx) => {
           for (const item of items) {
-            // 1️⃣ find seller for this product
+           
             const sellerProduct = await tx.sellerProduct.findUnique({
               where: { id: item.productId },
               select: { sellerId: true }

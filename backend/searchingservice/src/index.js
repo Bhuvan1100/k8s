@@ -1,26 +1,35 @@
-import "dotenv/config";
-import express from "express";
-import dotenv from "dotenv";
+import "dotenv/config"
+import express from "express"
+
+import accessLoggerMiddleware from "./middleware/accessLogger.js"
+import errorHandlerMiddleware from "./middleware/errorHandler.js"
+import { strictRequestIdMiddleware } from "./middleware/strictReqIdmiddleware.js"
+
 import "./worker/addDeleteProduct.js"
 import "./worker/decreaseProduct.js"
-import { getProductsByCategory } from "./routes/category.js";
-import { getProductsByQuery } from "./routes/query.js";
 
-dotenv.config();
+import { getProductsByCategory } from "./routes/category.js"
+import { getProductsByQuery } from "./routes/query.js"
 
-const app = express();
-
-app.use(express.json());
-
-const PORT = process.env.PORT || 4005;
+const app = express()
+const port = process.env.PORT || 4005
 
 app.get("/health", (req, res) => {
-  res.json({ status: "Search Service running" });
-});
+  res.status(200).json({
+    status: "OK",
+    service: "SEARCH_SERVICE"
+  })
+})
 
-app.post("/products/:category/:subCategory",getProductsByCategory)
-app.post("/search/:query",getProductsByQuery)
+app.use(express.json())
+app.use(accessLoggerMiddleware)
+app.use(strictRequestIdMiddleware)
 
-app.listen(PORT, () => {
-  console.log(` Search Service running on port ${PORT}`);
-});
+app.post("/products/:category/:subCategory", getProductsByCategory)
+app.post("/search/:query", getProductsByQuery)
+
+app.use(errorHandlerMiddleware)
+
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Search Service running on port ${port}`)
+})

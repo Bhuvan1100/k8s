@@ -1,23 +1,26 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config"
+import express from "express"
 
-import express from "express";
-import accessLoggerMiddleware from "./middleware/accessLogger.js";
+import accessLoggerMiddleware from "./middleware/accessLogger.js"
+import { strictRequestIdMiddleware } from "./middleware/strictReqIdmiddleware.js"
 
-import "./worker/email-orderCreated.js";
-import "./worker/email-orderedItem.js";
+import "./worker/email-orderCreated.js"
+import "./worker/email-orderedItem.js"
 
-const app = express();
+const app = express()
+const port = process.env.PORT || 4003
 
-app.use(express.json());
-app.use(accessLoggerMiddleware);
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "NOTIFICATION_SERVICE"
+  })
+})
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({ status: "ok" });
-});
+app.use(express.json())
+app.use(accessLoggerMiddleware)
+app.use(strictRequestIdMiddleware)
 
-const PORT = process.env.PORT || 4003;
-
-app.listen(PORT, () => {
-  console.log(`Notification service running on port ${PORT}`);
-});
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Notification Service running on port ${port}`)
+})

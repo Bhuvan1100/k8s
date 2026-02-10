@@ -1,4 +1,4 @@
-import accessLogger from "../logger/accessLogger"
+import accessLogger from "../logger/accessLogger.js"
 
 const accessLoggerMiddleware = (req, res, next) => {
   const startTime = Date.now()
