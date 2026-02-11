@@ -19,7 +19,8 @@ export const getProductsByCategory = async (req, res) => {
       {
         headers: {
           "x-request-id": req.requestId
-        }
+        },
+        params: req.query
       }
     )
 
