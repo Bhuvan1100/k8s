@@ -1,4 +1,5 @@
 import prisma from "../config/prismaClient.js"
+import { updateRatingQueue } from "../infra/updateRating.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
 
@@ -144,6 +145,11 @@ export const addRating = async (req, res) => {
         ratingCount: aggregate._count.rating
       }
     })
+    await updateRatingQueue.add("updateRatingJob", {
+      productId,
+      averageRating: aggregate._avg.rating || 0,
+      totalRatings: aggregate._count.rating
+    });
 
     appLogger.info("ADD_RATING_SUCCESS", {
       productId,

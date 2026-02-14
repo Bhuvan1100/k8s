@@ -1,0 +1,383 @@
+├── .gitignore
+├── apigateway
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   └── src
+│       ├── config
+│       │   └── redisClient.js
+│       ├── index.js
+│       ├── logger
+│       │   ├── accesslogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── metrics
+│       │   └── prometheus.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   ├── firebaseVerification.js
+│       │   ├── rateLimit.js
+│       │   ├── requestId.js
+│       │   └── verification.js
+│       └── router
+│           ├── auth
+│           │   ├── login.js
+│           │   ├── signup.js
+│           │   └── verify.js
+│           ├── auth.js
+│           ├── cart
+│           │   ├── addItemToCart.js
+│           │   ├── deleteItem.js
+│           │   ├── getItemForUser.js
+│           │   └── updateItems.js
+│           ├── cart.js
+│           ├── checkout
+│           │   ├── commitCheckout.js
+│           │   ├── fillUserDetails.js
+│           │   └── proceedToCheckout.js
+│           ├── getBuyerOrders.js
+│           ├── getOrderStatus.js
+│           ├── getSellerOrders.js
+│           ├── order.js
+│           ├── orders
+│           │   ├── getBuyerOrder.js
+│           │   ├── getOrderStatus.js
+│           │   └── getSellerOrder.js
+│           ├── payment
+│           │   └── commitPayment.js
+│           ├── payment.js
+│           ├── product
+│           │   ├── getCartProductUI.js
+│           │   └── getProductDetails.js
+│           ├── product.js
+│           ├── productDetail.js
+│           ├── productSearch
+│           │   ├── searchByCategory.js
+│           │   └── searchByQuery.js
+│           ├── review
+│           │   ├── comment.js
+│           │   └── rate.js
+│           ├── review.js
+│           ├── search.js
+│           ├── seller
+│           │   ├── addProduct.js
+│           │   ├── createSellerDetail.js
+│           │   └── deleteProduct.js
+│           ├── seller.js
+│           └── verify.js
+├── authservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   │   ├── access.log
+│   │   └── app.log
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20251217092925_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260119133644_init
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   └── schema.prisma
+│   └── src
+│       ├── config
+│       │   └── prismaClient.js
+│       ├── index.js
+│       ├── infra
+│       │   └── redisConnection.js
+│       ├── logger
+│       │   ├── accesslogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   └── strictReqIdmiddleware.js
+│       ├── router
+│       │   └── auth.js
+│       └── worker
+│           └── roleUpdater.js
+├── buyerdomainservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20251219155426_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260124202253_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260124210809_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260126085707_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260129083541_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260130175745_almost_final
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260210145655_init
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   └── schema.prisma
+│   └── src
+│       ├── config
+│       │   ├── prismaClient.js
+│       │   └── redisClient.js
+│       ├── consumer
+│       │   └── buyerOrder.consumer.js
+│       ├── index.js
+│       ├── kafka
+│       │   └── client.js
+│       ├── logger
+│       │   ├── accessLogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   └── strictReqIdmiddleware.js
+│       ├── queue
+│       │   └── notify-orderCompleted.js
+│       ├── routes
+│       │   ├── address.js
+│       │   ├── addToCart.js
+│       │   ├── cartcheckout.js
+│       │   ├── deleteCart.js
+│       │   ├── getBuyerOrders.js
+│       │   ├── getCart.js
+│       │   ├── number.js
+│       │   └── quantityChange.js
+│       └── worker
+│           └── updateOrderStatus.js
+├── communicationservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   └── src
+│       ├── index.js
+│       ├── infra
+│       │   ├── mailer.js
+│       │   └── redisConnection.js
+│       ├── logger
+│       │   ├── accessLogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   └── strictReqIdmiddleware.js
+│       └── worker
+│           ├── email-orderCreated.js
+│           └── email-orderedItem.js
+├── infra
+│   └── prometheus.yml
+├── orderservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20260113130527_initital_migration
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260113193832_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260129083618_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260130175836_almost_done
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   └── schema.prisma
+│   └── src
+│       ├── config
+│       │   ├── prismaClient.js
+│       │   └── redisClient.js
+│       ├── cron
+│       │   └── orderLifecycleCron.js
+│       ├── index.js
+│       ├── kafka
+│       │   └── client.js
+│       ├── logger
+│       │   ├── accessLogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   └── strictReqIdmiddleware.js
+│       ├── producer
+│       │   └── producer.js
+│       ├── queue
+│       │   └── updateOrderStatus.js
+│       └── routes
+│           ├── checkoutDetails.js
+│           ├── commit.js
+│           ├── getOrderStatus.js
+│           ├── order.js
+│           ├── payment.js
+│           ├── productOrderStatus.js
+│           └── softcheckout.js
+├── productservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── prisma
+│   │   ├── migrations
+│   │   │   ├── 20260121091539_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260126082455_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260129083703_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260130180027_almost_done
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260202164153_init
+│   │   │   │   └── migration.sql
+│   │   │   ├── 20260203094423_init
+│   │   │   │   └── migration.sql
+│   │   │   └── migration_lock.toml
+│   │   └── schema.prisma
+│   └── src
+│       ├── config
+│       │   ├── prismaClient.js
+│       │   └── redisClient.js
+│       ├── consumer
+│       │   ├── inventoryDecrease.consumer.js
+│       │   └── inventoryRelease.consumer.js
+│       ├── cron
+│       │   └── inventoryRelease.js
+│       ├── index.js
+│       ├── infra
+│       │   ├── additemToSeller.js
+│       │   ├── addProductQueue.js
+│       │   └── inventoryQueue.js
+│       ├── kafka
+│       │   └── client.js
+│       ├── logger
+│       │   ├── accessLogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   └── strictReqIdmiddleware.js
+│       └── router
+│           ├── addProduct.js
+│           ├── getCartProduct.js
+│           ├── getCartProductUI.js
+│           ├── getProductDetail.js
+│           ├── inventoryReserve.js
+│           ├── reviewProduct.js
+│           └── softcheck.js
+├── project_tree.txt
+├── README.md
+├── root.py
+├── searchingservice
+│   ├── .dockerignore
+│   ├── .env
+│   ├── .gitignore
+│   ├── Dockerfile
+│   ├── logs
+│   ├── package-lock.json
+│   ├── package.json
+│   └── src
+│       ├── config
+│       │   └── meiliSearchSetUp.js
+│       ├── index.js
+│       ├── infra
+│       │   ├── meilisearch.js
+│       │   └── redisConnection.js
+│       ├── logger
+│       │   ├── accessLogger.js
+│       │   ├── appLogger.js
+│       │   ├── base.js
+│       │   └── errorLogger.js
+│       ├── middleware
+│       │   ├── accessLogger.js
+│       │   ├── errorHandler.js
+│       │   └── strictReqIdmiddleware.js
+│       ├── product.txt
+│       ├── routes
+│       │   ├── category.js
+│       │   └── query.js
+│       └── worker
+│           ├── addDeleteProduct.js
+│           └── decreaseProduct.js
+└── sellerservice
+    ├── .Dockerignore
+    ├── .env
+    ├── .gitignore
+    ├── Dockerfile
+    ├── logs
+    ├── package-lock.json
+    ├── package.json
+    ├── prisma
+    │   ├── migrations
+    │   │   ├── 20260124195833_init
+    │   │   │   └── migration.sql
+    │   │   ├── 20260130180112_almost_done
+    │   │   │   └── migration.sql
+    │   │   ├── 20260130235732_init
+    │   │   │   └── migration.sql
+    │   │   ├── 20260203112145_init
+    │   │   │   └── migration.sql
+    │   │   ├── 20260210145621_init
+    │   │   │   └── migration.sql
+    │   │   └── migration_lock.toml
+    │   └── schema.prisma
+    └── src
+        ├── config
+        │   ├── prismaClient.js
+        │   └── redisClient.js
+        ├── consumer
+        │   └── sellerOrder.consumer.js
+        ├── index.js
+        ├── kafka
+        │   └── client.js
+        ├── logger
+        │   ├── accessLogger.js
+        │   ├── appLogger.js
+        │   ├── base.js
+        │   └── errorLogger.js
+        ├── middleware
+        │   ├── accessLogger.js
+        │   ├── errorHandler.js
+        │   └── strictReqIdmiddleware.js
+        ├── queue
+        │   ├── notify-orderCreated.js
+        │   └── roleUpdater.js
+        ├── routes
+        │   ├── getSellerOrders.js
+        │   └── sellerDetail.js
+        └── worker
+            ├── addItems.js
+            └── updateOrderStatus.js

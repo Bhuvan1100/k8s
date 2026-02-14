@@ -7,6 +7,7 @@ import { strictRequestIdMiddleware } from "./middleware/strictReqIdmiddleware.js
 
 import "./worker/addDeleteProduct.js"
 import "./worker/decreaseProduct.js"
+import "./worker/updateRating.js"
 
 import { getProductsByCategory } from "./routes/category.js"
 import { getProductsByQuery } from "./routes/query.js"

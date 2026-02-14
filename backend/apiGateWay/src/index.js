@@ -1,6 +1,7 @@
 import "dotenv/config"
 import express from "express"
 import cookieParser from "cookie-parser"
+import cors from "cors"
 
 import {
   prometheusMiddleware,
@@ -13,48 +14,39 @@ import accessLoggerMiddleware from "./middleware/accessLogger.js"
 import errorHandlerMiddleware from "./middleware/errorHandler.js"
 import jwtCookieMiddleware from "./middleware/verification.js"
 
-import verifyUser from "./router/verify.js"
-import { login, signup } from "./router/auth.js"
-
-import {
-  addProduct,
-  deleteProduct,
-  getCartProductForUI
-} from "./router/product.js"
-
-import {
-  commentProduct,
-  rateProduct
-} from "./router/review.js"
-
-import { getProduct } from "./router/productDetail.js"
-
-import {
-  getProductsByCategory,
-  getProductsByQuery
-} from "./router/search.js"
-
-import {
-  addItemToCart,
-  deleteCartItem,
-  updateCartItem,
-  getCartItemsforUserContext
-} from "./router/cart.js"
-
-import {
-  proceedToCheckout,
-  fillCheckoutDetails,
-  commitCheckoutSession
-} from "./router/order.js"
-
-import { paymentCallback } from "./router/payment.js"
-import { createSellerDetail } from "./router/seller.js"
-
-import { getOrderStatus } from "./router/getOrderStatus.js"
-import { getBuyerOrders } from "./router/getBuyerOrders.js"
-import { getSellerOrders } from "./router/getSellerOrders.js"
-
 import appLogger from "./logger/appLogger.js"
+
+import verifyUser from "./router/auth/verify.js"
+import { login } from "./router/auth/login.js"
+import { signup } from "./router/auth/signup.js"
+
+import { createSellerDetail } from "./router/seller/createSellerDetail.js"
+import { addProduct } from "./router/seller/addProduct.js"
+import { deleteProduct } from "./router/seller/deleteProduct.js"
+
+import { getProductDetail } from "./router/product/getProductDetails.js"
+import { getCartProductForUI } from "./router/product/getCartProductUI.js"
+
+import { commentProduct } from "./router/review/comment.js"
+import { rateProduct } from "./router/review/rate.js"
+
+import { getProductsByCategory } from "./router/productSearch/searchByCategory.js"
+import { getProductsByQuery } from "./router/productSearch/searchByQuery.js"
+
+import { addItemToCart } from "./router/cart/addItemToCart.js"
+import { updateCartItem } from "./router/cart/updateItems.js"
+import { deleteCartItem } from "./router/cart/deleteItem.js"
+import { getCartItemsforUserContext } from "./router/cart/getItemForUser.js"
+
+import { proceedToCheckout } from "./router/checkout/proceedToCheckout.js"
+import { fillCheckoutDetails } from "./router/checkout/fillUserDetails.js"
+import { commitCheckoutSession } from "./router/checkout/commitCheckout.js"
+
+import { getBuyerOrders } from "./router/orders/getBuyerOrder.js"
+import { getSellerOrders } from "./router/orders/getSellerOrder.js"
+import { getOrderStatusForAdmin } from "./router/orders/getOrderStatus.js"
+
+import { paymentCallback } from "./router/payment/commitPayment.js"
 
 const app = express()
 const port = 4000
@@ -65,6 +57,11 @@ app.get("/health", (req, res) => {
     service: "API_GATEWAY"
   })
 })
+
+app.use(cors({
+  origin :  "http://localhost:5173",
+  credentials: true})
+)
 
 app.get("/metrics", prometheusMetricsEndpoint)
 
@@ -86,9 +83,10 @@ app.delete("/seller/product/:productId", deleteProduct)
 app.post("/seller/sellerdetail", createSellerDetail)
 
 app.post("/product/cart/ui", getCartProductForUI)
+app.get("/product/productdetail/:productId", getProductDetail)
+
 app.post("/product/comment/:productId", commentProduct)
 app.post("/product/rate/:productId", rateProduct)
-app.get("/product/productdetail/:productId", getProduct)
 
 app.get("/products/:category/:subCategory", getProductsByCategory)
 app.get("/search/:query", getProductsByQuery)
@@ -104,11 +102,9 @@ app.post("/checkout/session/commit", commitCheckoutSession)
 
 app.post("/order/payment", paymentCallback)
 
-app.post("/admin/orders/status", getOrderStatus)
+app.post("/admin/orders/status", getOrderStatusForAdmin)
 app.post("/buyer/orders", getBuyerOrders)
-app.post("/seller/orders",getSellerOrders)
-
-
+app.post("/seller/orders", getSellerOrders)
 
 app.use(errorHandlerMiddleware)
 
