@@ -14,6 +14,8 @@ import { getCartProductForUI } from "./router/getCartProductUI.js"
 
 import { startInventoryConsumer } from "./consumer/inventoryDecrease.consumer.js"
 import { startInventoryFailureConsumer } from "./consumer/inventoryRelease.consumer.js"
+import { getVariantPrice } from "./router/getVarientPrice.js"
+import { updateVariantPrice } from "./router/updatePrice.js"
 
 const app = express()
 const port = process.env.PORT || 4006
@@ -40,6 +42,9 @@ app.post("/product/cart/ui", getCartProductForUI)
 
 app.get("/product/productdetail/:productId", getProductDetail)
 app.post("/product/softcheck", softCheckProducts)
+
+app.post("/internal/variants/pricing-context",getVariantPrice)
+app.post("/internal/update_price",updateVariantPrice)
 
 app.use(errorHandlerMiddleware)
 

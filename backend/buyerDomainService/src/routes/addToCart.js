@@ -1,6 +1,7 @@
 import prisma from "../config/prismaClient.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
+import redis from "../config/redisClient.js"
 
 const addToCart = async (req, res) => {
   const { userId, productVariantId } = req.body
@@ -84,6 +85,24 @@ const addToCart = async (req, res) => {
         totalPrice: { increment: totalItemPrice }
       }
     })
+
+   
+
+    const timestamp = Math.floor(Date.now() / 1000)
+
+    const eventPayload = JSON.stringify({
+      userId,
+      quantity,
+      timestamp
+    })
+
+    await redis.zAdd(`cart_events:${productVariantId}`, {
+      score: timestamp,
+      value: eventPayload
+    })
+    await redis.zIncrBy("variant_lifetime_score", 1 * quantity, productVariantId)
+    await redis.zIncrBy("variant_activity_score", quantity, productVariantId)
+   
 
     appLogger.info("ADD_TO_CART_SUCCESS", {
       userId,

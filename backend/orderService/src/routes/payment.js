@@ -1,7 +1,9 @@
+import axios from "axios"
 import prisma from "../config/prismaClient.js"
 import { kafkaProducer } from "../producer/producer.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
+import redis from "../config/newRedisClient.js"
 
 export const handlePayment = async (req, res) => {
   const { orderId, status } = req.body
@@ -51,6 +53,34 @@ export const handlePayment = async (req, res) => {
         }
       })
 
+
+      const timestamp = Math.floor(Date.now() / 1000)
+
+      for (const item of order.items) {
+        const variantId = item.productVariantId
+
+        const eventPayload = JSON.stringify({
+          orderId,
+          variantId,
+          quantity: item.quantity,
+          timestamp
+        })
+
+        await redis.zAdd(`sold_events:${variantId}`, {
+          score: timestamp,
+          value: eventPayload
+        })
+
+        // Optional: keep lifetime popularity separate
+        await redis.zIncrBy(
+          "variant_lifetime_score",
+          2 * item.quantity,
+          variantId
+        )
+        await redis.zIncrBy("variant_activity_score", 2 * item.quantity, variantId)
+      }
+
+
       const eventPayload = {
         orderId: updatedOrder.id,
         userId: updatedOrder.userId,
@@ -80,6 +110,36 @@ export const handlePayment = async (req, res) => {
 
       appLogger.info("HANDLE_PAYMENT_SUCCESS", { orderId: updatedOrder.id })
       console.log("[HANDLE_PAYMENT] success", updatedOrder.id)
+
+
+      try {
+        console.log("[HANDLE_PAYMENT] clearing buyer cart", updatedOrder.userId)
+
+        await axios.post(
+          "http://buyerservice:4002/buyer/cart/clear", 
+          {
+            userId: updatedOrder.userId
+          },
+          {
+            headers: {
+              "x-request-id": req.requestId
+            },
+            timeout: 3000 
+          }
+        )
+
+        console.log("[HANDLE_PAYMENT] cart cleared successfully", updatedOrder.userId)
+
+      } catch (cartError) {
+        // DO NOT THROW — log only
+        errorLogger.error("CART_CLEAR_FAILED_AFTER_PAYMENT", {
+          orderId: updatedOrder.id,
+          userId: updatedOrder.userId,
+          message: cartError.message
+        })
+
+        console.log("[HANDLE_PAYMENT] cart clear failed but payment already processed")
+      }
 
       return res.status(200).json({
         message: "Payment successful",

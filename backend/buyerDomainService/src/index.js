@@ -1,16 +1,18 @@
 import "dotenv/config"
 import express from "express"
 
+
 import accessLoggerMiddleware from "./middleware/accessLogger.js"
 import { strictRequestIdMiddleware } from "./middleware/strictReqIdmiddleware.js"
 import errorHandlerMiddleware from "./middleware/errorHandler.js"
 
 import addToCart from "./routes/addToCart.js"
 import updateCartItemQuantity from "./routes/quantityChange.js"
-import removeCartItem from "./routes/deleteCart.js"
+import removeCartItem from "./routes/removeCartItem.js"
 import getCartItems from "./routes/getCart.js"
 import { checkoutCart } from "./routes/cartcheckout.js"
 import { getBuyerOrders } from "./routes/getBuyerOrders.js"
+import { clearCart } from "./routes/clearCart.js"
 
 import { startBuyerOrderConsumer } from "./consumer/buyerOrder.consumer.js"
 import "./worker/updateOrderStatus.js"
@@ -35,6 +37,7 @@ app.delete("/buyer/cart/delete", removeCartItem)
 app.post("/buyer/cart/getcart", getCartItems)
 app.post("/buyer/cart/cartcheckout", checkoutCart)
 app.post("/buyer/orders",getBuyerOrders)
+app.post("/buyer/cart/clear",clearCart)
 
 app.use(errorHandlerMiddleware)
 

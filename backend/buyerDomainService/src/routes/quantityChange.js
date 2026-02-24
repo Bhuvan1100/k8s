@@ -1,6 +1,7 @@
 import prisma from "../config/prismaClient.js"
 import appLogger from "../logger/appLogger.js"
 import errorLogger from "../logger/errorLogger.js"
+import redis from "../config/redisClient.js"
 
 const updateCartItemQuantity = async (req, res) => {
   const { userId, productVariantId } = req.body
@@ -64,6 +65,16 @@ const updateCartItemQuantity = async (req, res) => {
         totalPrice: { increment: deltaItemTotal }
       }
     })
+
+    
+    if (delta > 0) {
+      await redis.zIncrBy(
+        "variant_activity_score",
+        delta, 
+        productVariantId
+      )
+    }
+
 
     appLogger.info("UPDATE_CART_ITEM_SUCCESS", {
       userId,

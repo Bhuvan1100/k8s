@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import prisma from "../config/prismaClient.js";
-import { redisConnection } from "../config/redisClient.js";
+import { redisConnection } from "../config/redisConnection.js";
 
 export const buyerOrderStatusWorker = new Worker(
   "buyer-order-status-queue",

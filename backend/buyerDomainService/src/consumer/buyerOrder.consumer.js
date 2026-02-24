@@ -8,17 +8,34 @@ const consumer = kafka.consumer({
   groupId: "buyer-service-order-consumer"
 })
 
-export const startBuyerOrderConsumer = async () => {
-  await consumer.connect()
-  await consumer.subscribe({
-    topic: "order.success",
-    fromBeginning: false
-  })
+const wait = (ms) => new Promise((res) => setTimeout(res, ms))
 
-  appLogger.info("BUYER_ORDER_CONSUMER_STARTED", {
-    topic: "order.success"
-  })
-  console.log("[BUYER_ORDER_CONSUMER] listening to order.success")
+export const startBuyerOrderConsumer = async () => {
+  let connected = false
+
+ 
+  while (!connected) {
+    try {
+      console.log("[BUYER_ORDER_CONSUMER] connecting to Kafka...")
+      await consumer.connect()
+
+      await consumer.subscribe({
+        topic: "order.success",
+        fromBeginning: false
+      })
+
+      connected = true
+
+      appLogger.info("BUYER_ORDER_CONSUMER_STARTED", {
+        topic: "order.success"
+      })
+      console.log("[BUYER_ORDER_CONSUMER] listening to order.success")
+
+    } catch (error) {
+      console.error("[BUYER_ORDER_CONSUMER] Kafka not ready, retrying in 3s...")
+      await wait(3000)
+    }
+  }
 
   await consumer.run({
     eachMessage: async ({ message }) => {
@@ -73,7 +90,7 @@ export const startBuyerOrderConsumer = async () => {
               status: "PAID",
               totalAmount,
               billingSnapshot: payload.billingSnapshot,
-              addressSnapshot : payload.userDetailSnapshot,
+              addressSnapshot: payload.userDetailSnapshot,
               createdAt: payload.paidAt
                 ? new Date(payload.paidAt)
                 : new Date(),

@@ -1,4 +1,4 @@
-const REDIS_HOST = process.env.REDIS_HOST  //in env add redis and 6379
+const REDIS_HOST = process.env.REDIS_HOST  
 const REDIS_PORT = process.env.REDIS_PORT
 
 console.log(" Redis configuration loaded");

@@ -1,18 +1,24 @@
-const REDIS_HOST = process.env.REDIS_HOST || "localhost";
-const REDIS_PORT = process.env.REDIS_PORT
-  ? Number(process.env.REDIS_PORT)
-  : 6379;
+import { createClient } from "redis";
 
-if (Number.isNaN(REDIS_PORT)) {
-  console.error("❌ REDIS_PORT must be a number");
-  process.exit(1);
-}
+const redis = createClient({
+  socket: {
+    host: process.env.REDIS_HOST || "127.0.0.1",
+    port: Number(process.env.REDIS_PORT) || 6379,
+    reconnectStrategy: (retries) => {
+      if (retries > 10) return new Error("Redis reconnect failed");
+      return Math.min(retries * 100, 3000);
+    }
+  }
+});
 
-console.log(" Redis configuration loaded");
-console.log(`   Host : ${REDIS_HOST}`);
-console.log(`   Port : ${REDIS_PORT}`);
+redis.on("connect", () => {
+  console.log("Redis connected");
+});
 
-export const redisConnection = {
-  host: REDIS_HOST,
-  port: REDIS_PORT
-};
+redis.on("error", (err) => {
+  console.error("Redis Error:", err);
+});
+
+await redis.connect();
+
+export default redis;

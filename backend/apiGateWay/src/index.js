@@ -34,6 +34,7 @@ import { getProductsByCategory } from "./router/productSearch/searchByCategory.j
 import { getProductsByQuery } from "./router/productSearch/searchByQuery.js"
 
 import { addItemToCart } from "./router/cart/addItemToCart.js"
+import { clearCart } from "./router/cart/clearCart.js"
 import { updateCartItem } from "./router/cart/updateItems.js"
 import { deleteCartItem } from "./router/cart/deleteItem.js"
 import { getCartItemsforUserContext } from "./router/cart/getItemForUser.js"
@@ -47,6 +48,10 @@ import { getSellerOrders } from "./router/orders/getSellerOrder.js"
 import { getOrderStatusForAdmin } from "./router/orders/getOrderStatus.js"
 
 import { paymentCallback } from "./router/payment/commitPayment.js"
+
+import { approveProposal } from "./router/pricing/approveProposal.js"
+import { rejectProposal } from "./router/pricing/rejectProposal.js"
+import { fetchProposals } from "./router/pricing/fetchProposal.js"
 
 const app = express()
 const port = 4000
@@ -62,6 +67,7 @@ app.use(cors({
   origin :  "http://localhost:5173",
   credentials: true})
 )
+app.set("trust proxy", 1);
 
 app.get("/metrics", prometheusMetricsEndpoint)
 
@@ -95,6 +101,7 @@ app.post("/buyer/cart/additem", addItemToCart)
 app.patch("/buyer/cart/update", updateCartItem)
 app.delete("/buyer/cart/delete", deleteCartItem)
 app.post("/buyer/cart/getcart", getCartItemsforUserContext)
+app.post("/buyer/cart/clear",clearCart)
 
 app.post("/checkout/preview", proceedToCheckout)
 app.post("/checkout/session/details", fillCheckoutDetails)
@@ -106,9 +113,16 @@ app.post("/admin/orders/status", getOrderStatusForAdmin)
 app.post("/buyer/orders", getBuyerOrders)
 app.post("/seller/orders", getSellerOrders)
 
+app.post("/proposals/:proposal_id/approve", approveProposal)
+app.post("/proposals/:proposal_id/reject", rejectProposal)
+app.get("/proposals", fetchProposals)
+
+
+
 app.use(errorHandlerMiddleware)
 
 app.listen(port, "0.0.0.0", () => {
+  console.log("ApiGateWay running at port 4000")
   appLogger.info({
     event: "API_GATEWAY_STARTED",
     port

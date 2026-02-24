@@ -30,6 +30,7 @@ app.post("/auth/login", login)
 app.use(errorHandlerMiddleware)
 
 app.listen(port, "0.0.0.0", () => {
+  console.log("Auth service running at port 4001")
   appLogger.info({
     event: "AUTH_SERVICE_STARTED",
     port

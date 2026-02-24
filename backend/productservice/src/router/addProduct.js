@@ -50,7 +50,7 @@ export const addProduct = async (req, res) => {
     for (const size of sizePriority) {
       const variant = variants.find(v => v.size === size)
       if (variant && variant.price != null) {
-        price = variant.price
+        price = variant.price * 1.25
         break
       }
     }
@@ -75,13 +75,20 @@ export const addProduct = async (req, res) => {
         totalQuantity,
         price,
         variants: {
-          create: variants.map(v => ({
-            size: v.size,
-            totalQuantity: v.totalQuantity,
-            reservedQuantity: 0,
-            availableQuantity: v.totalQuantity,
-            price: v.price
-          }))
+          create: variants.map(v => {
+            const basePrice = v.price != null ? v.price * 1.25 : null
+
+            return {
+              size: v.size,
+              totalQuantity: v.totalQuantity,
+              reservedQuantity: 0,
+              availableQuantity: v.totalQuantity,
+              price: basePrice,
+              salePrice: basePrice,
+              lowerLimit: basePrice != null ? basePrice * 0.90 : null,  // 🔥 10% below
+              upperLimit: basePrice != null ? basePrice * 1.15 : null   // 🔥 15% above
+            }
+          })
         },
         images: {
           create: images.map((img, index) => ({
@@ -92,6 +99,7 @@ export const addProduct = async (req, res) => {
       },
       include: { variants: true }
     })
+
 
     appLogger.info("ADD_PRODUCT_CREATED", {
       userId,
@@ -157,26 +165,23 @@ export const addProduct = async (req, res) => {
     })
 
   } catch (error) {
-    if (error.code === "P2002") {
-      errorLogger.error("ADD_PRODUCT_FAILED", {
+    errorLogger.error("ADD_PRODUCT_FAILED", {
       userId,
       message: error.message,
       stack: error.stack
+    })
+    console.log("[ADD_PRODUCT] failed", userId)
+
+    if (error.code === "P2002") {
+      return res.status(409).json({
+        message: "Product already exists for this user"
       })
-      console.log("[ADD_PRODUCT] failed", userId)
-
-      if (error.code === "P2002") {
-        return res.status(409).json({
-          message: "Product already exists for this user"
-        })
-      }
     }
-
-    
 
     return res.status(500).json({ message: "Failed to add product" })
   }
 }
+
 
 export const deleteProduct = async (req, res) => {
   const { productId } = req.params

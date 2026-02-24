@@ -6,14 +6,28 @@ const consumer = kafka.consumer({
   groupId: "product-service-inventory-consumer"
 });
 
-export const startInventoryConsumer = async () => {
-  await consumer.connect();
-  await consumer.subscribe({
-    topic: "order.success",
-    fromBeginning: false
-  });
+const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  console.log("[PRODUCT-SERVICE] Listening to order.success");
+export const startInventoryConsumer = async () => {
+  let connected = false;
+
+  while (!connected) {
+    try {
+      console.log("[PRODUCT-SERVICE] Connecting to Kafka...");
+      await consumer.connect();
+
+      await consumer.subscribe({
+        topic: "order.success",
+        fromBeginning: false
+      });
+
+      connected = true;
+      console.log("[PRODUCT-SERVICE] Listening to order.success");
+    } catch (error) {
+      console.error("[PRODUCT-SERVICE] Kafka not ready, retrying in 3s...");
+      await wait(3000);
+    }
+  }
 
   await consumer.run({
     eachMessage: async ({ message }) => {
@@ -88,10 +102,11 @@ export const startInventoryConsumer = async () => {
             isInStock: totalQuantity > 0
           });
         }
+
         console.log(
           "[PRODUCT-SERVICE] inventory updates count",
           updates.length
-        )
+        );
 
         if (updates.length > 0) {
           await inventoryQueue.add(
@@ -107,7 +122,6 @@ export const startInventoryConsumer = async () => {
         console.log(
           `[PRODUCT-SERVICE] Inventory consumed & synced for order ${orderId}`
         );
-
       } catch (error) {
         console.error(
           "[PRODUCT-SERVICE] Inventory consume failed",

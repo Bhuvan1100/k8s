@@ -178,5 +178,34 @@ All communication is handled asynchronously to avoid blocking core services.
 
 ---
 
+### AI pricing Strategy
+- System which keeps a check on bought products and item added to cart
+- decide with the help of AI models about demand and supply 
+- Separate price calculating strategy based on AI output 
+- Admin protak just approves and reject decision
+- Full price Update automation
+
 ## Repository Structure
+
+
+
+---
+
+## 🚀 Tech Stack
+
+- Node.js  
+- Python  
+- PostgreSQL  
+- Redis  
+- Kafka  
+- BullMQ  
+- Meilisearch  
+- Prometheus & Grafana  
+- LangGraph  
+
+---
+
+## 📌 Portfolio Summary
+
+Built a scalable microservices-based e-commerce platform featuring event-driven architecture (Kafka), inventory locking with recovery, AI-assisted dynamic pricing using LangGraph, async workflows with Redis/BullMQ, and full observability with Prometheus & Grafana.
 

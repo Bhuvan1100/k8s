@@ -1,0 +1,54 @@
+# ===============================
+# Core API
+# ===============================
+fastapi
+uvicorn[standard]
+
+# ===============================
+# Database
+# ===============================
+SQLAlchemy
+psycopg[binary]
+alembic
+
+# ===============================
+# Configuration
+# ===============================
+python-dotenv
+pydantic
+pydantic-settings
+
+# ===============================
+# Redis
+# ===============================
+redis
+
+# ===============================
+# HTTP Clients
+# ===============================
+requests
+httpx
+
+# ===============================
+# AI Layer (LangGraph + Gemini)
+# ===============================
+langchain
+langchain-core
+langchain-google-genai
+langgraph
+langgraph-checkpoint
+langgraph-checkpoint-postgres
+langsmith
+google-generativeai
+
+
+
+# ===============================
+# Observability
+# ===============================
+prometheus-client
+
+# ===============================
+# Utilities
+# ===============================
+tenacity
