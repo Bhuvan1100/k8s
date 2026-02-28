@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cartcraft
+  labels:
+    name: cartcraft
+    environment: production
+    project: cartcraft

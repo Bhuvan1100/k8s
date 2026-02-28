@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: communication-config
+  namespace: cartcraft
+data:
+  PORT: "4008"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"

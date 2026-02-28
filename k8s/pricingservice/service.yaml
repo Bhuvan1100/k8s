@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pricingservice
+  namespace: cartcraft
+spec:
+  selector:
+    app: pricingservice
+  ports:
+    - port: 4008
+      targetPort: 4008
+  type: ClusterIP

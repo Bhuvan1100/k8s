@@ -76,21 +76,34 @@ services:
       retries: 10
 
   apigateway:
-    image: cartcraft-api-gateway-test
     build: ./backend/apigateway
     ports:
       - "4000:4000"
     environment:
+      PORT: 4000
       JWT_SECRET: card-craft_bhuvan@2004
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      AUTH_SERVICE_URL: http://authservice:4001
+      BUYER_SERVICE_URL: http://buyerservice:4002
+      PRODUCT_SERVICE_URL: http://productservice:4003
+      ORDER_SERVICE_URL: http://orderservice:4004
+      SELLER_SERVICE_URL: http://sellerservice:4005
+      SEARCH_SERVICE_URL: http://searchingservice:4006
+      PRICING_SERVICE_URL: http://pricingservice:4007
+      COMMUNICATION_SERVICE_URL: http://communicationservice:4008
     depends_on:
       - redis
 
   authservice:
-    image: cartcraft-auth-service-test
     build: ./backend/authservice
     environment:
+      PORT: 4001
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: auth_db
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/auth_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -98,12 +111,19 @@ services:
       - postgres
 
   buyerservice:
-    image: cartcraft-buyer-service-test
-    build: ./backend/buyerdomainservice
+    build: ./backend/buyerservice
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/buyer_db
+      PORT: 4002
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: buyer_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/buyer_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started
@@ -113,12 +133,19 @@ services:
         condition: service_started
 
   productservice:
-    image: cartcraft-productservice-service-test
     build: ./backend/productservice
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/seller_db
+      PORT: 4003
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: seller_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/seller_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started
@@ -126,19 +153,26 @@ services:
         condition: service_healthy
 
   communicationservice:
-    image: cartcraft-communication-service-test
     build: ./backend/communicationservice
     environment:
+      PORT: 4008
       REDIS_HOST: redis
       REDIS_PORT: 6379
 
   orderservice:
-    image: cartcraft-order-service-test
     build: ./backend/orderservice
     environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/order_db
+      PORT: 4004
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: order_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/order_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started
@@ -146,23 +180,30 @@ services:
         condition: service_healthy
 
   searchingservice:
-    image: cartcraft-searching-service-test
     build: ./backend/searchingservice
     environment:
-      MEILI_MASTER_KEY: 3RzRUv4qnx2iuaUBLT1fVRQjz4zdlYUUSUsuEH8xqRg
-      MEILI_HOST: http://meilisearch:7700
+      PORT: 4006
+      MEILI_HOST: meilisearch
+      MEILI_PORT: 7700
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
       - meilisearch
 
   sellerservice:
-    image: cartcraft-seller-service-test
     build: ./backend/sellerservice
     environment:
+      PORT: 4005
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: seller1_db
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/seller1_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started
@@ -172,14 +213,21 @@ services:
         condition: service_started
 
   pricingservice:
-    image: cartcraft-pricing-service-test
     build: ./backend/pricingservice
     environment:
+      PORT: 4007
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: pricing_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       LANGSMITH_TRACING: "true"
       LANGSMITH_ENDPOINT: https://eu.api.smith.langchain.com
       LANGSMITH_PROJECT: cartcraft
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started

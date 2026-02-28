@@ -9,4 +9,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["sh", "-c", "until nc -z postgres 5432; do echo 'Waiting for Postgres...'; sleep 2; done; alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 4008"]
+CMD ["sh", "-c", "until nc -z $DB_HOST $DB_PORT; do echo 'Waiting for Postgres...'; sleep 2; done; alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 4008"]

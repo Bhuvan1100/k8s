@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: communicationservice
+  namespace: cartcraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: communicationservice
+  template:
+    metadata:
+      labels:
+        app: communicationservice
+    spec:
+      containers:
+        - name: communicationservice
+          image: bhuvan0fficial/cartcraft-communicationservice:v1
+          imagePullPolicy: Always
+
+          ports:
+            - containerPort: 4003
+
+          envFrom:
+            - configMapRef:
+                name: communication-config
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 4008
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 4008
+            initialDelaySeconds: 50
+            periodSeconds: 20
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"

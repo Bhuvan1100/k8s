@@ -209,3 +209,4 @@ All communication is handled asynchronously to avoid blocking core services.
 
 Built a scalable microservices-based e-commerce platform featuring event-driven architecture (Kafka), inventory locking with recovery, AI-assisted dynamic pricing using LangGraph, async workflows with Redis/BullMQ, and full observability with Prometheus & Grafana.
 
+cartcraft-bhuvan

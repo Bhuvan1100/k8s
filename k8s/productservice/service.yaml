@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: productservice
+  namespace: cartcraft
+spec:
+  selector:
+    app: productservice
+  ports:
+    - port: 4006
+      targetPort: 4006
+  type: ClusterIP
