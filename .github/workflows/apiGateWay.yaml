@@ -5,7 +5,7 @@ on:
     branches:
       - backend-deploy
     paths:
-      - 'backend/apiGateway/**'
+      - 'backend/apiGateWay/**'
 
 jobs:
   deploy:
