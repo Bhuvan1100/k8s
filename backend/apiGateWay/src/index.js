@@ -66,7 +66,7 @@ app.get("/health", (req, res) => {
 app.get("/check", (req, res) => {
   res.status(200).json({
     status: "OK",
-    service: "API_GATEWAY_UPDATED"
+    service: "API_GATEWAY_UPDATED_CORRECTLY"
   })
 })
 
