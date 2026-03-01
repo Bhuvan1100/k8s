@@ -23,7 +23,7 @@ jobs:
       # 3️⃣ Build and push image with commit SHA
       - name: Build and Push Docker Image
         run: |
-          docker build -t bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} ./backend/apiGateway
+          docker build -t bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} ./backend/apiGateWay
           docker push bhuvan0fficial/cartcraft-apigateway:${{ github.sha }}
 
       # 4️⃣ SSH into EC2 and update deployment
