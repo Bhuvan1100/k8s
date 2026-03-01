@@ -63,6 +63,13 @@ app.get("/health", (req, res) => {
   })
 })
 
+app.get("/check", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "API_GATEWAY_UPDATED"
+  })
+})
+
 app.use(cors({
   origin :  "http://localhost:5173",
   credentials: true})
