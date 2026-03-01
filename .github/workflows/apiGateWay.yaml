@@ -34,6 +34,6 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            kubectl set image deployment/api-gateway \
+            sudo kubectl set image deployment/api-gateway \
             api-gateway=bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} \
             -n cartcraft
