@@ -16,6 +16,12 @@ app.get("/health", (req, res) => {
     service: "NOTIFICATION_SERVICE"
   })
 })
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "NOTIFICATION_SERVICE"
+  })
+})
 
 app.use(express.json())
 app.use(accessLoggerMiddleware)
