@@ -22,6 +22,13 @@ app.get("/health", (req, res) => {
   })
 })
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    service: "SEARCH_SERVICE"
+  })
+})
+
 app.use(express.json())
 app.use(accessLoggerMiddleware)
 app.use(strictRequestIdMiddleware)
