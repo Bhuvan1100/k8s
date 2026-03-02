@@ -21,6 +21,7 @@ app.get("/health", (req, res) => {
 })
 
 
+
 app.use(express.json())
 app.use(accessLoggerMiddleware)
 app.use(strictRequestIdMiddleware)

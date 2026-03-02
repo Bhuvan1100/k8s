@@ -45,9 +45,7 @@ app = FastAPI(
 def health_check():
     return {"status": "Pricing Service Running"}
 
-@app.get("/")
-def health_check():
-    return {"status": "Pricing Service Running"}
+
 
 
 app.post("/proposals/{proposal_id}/approve")(approve_proposal)
