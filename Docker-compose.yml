@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
 
   postgres:
@@ -12,6 +10,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data_test:/var/lib/postgresql/data
+      - ./backend/infra/init-dbs.sql:/docker-entrypoint-initdb.d/01-create-databases.sql:ro
 
   redis:
     image: redis:7
@@ -76,7 +75,7 @@ services:
       retries: 10
 
   apigateway:
-    build: ./backend/apigateway
+    build: ./backend/apiGateWay
     ports:
       - "4000:4000"
     environment:
@@ -96,7 +95,7 @@ services:
       - redis
 
   authservice:
-    build: ./backend/authservice
+    build: ./backend/authService
     environment:
       PORT: 4001
       DB_HOST: postgres
@@ -108,10 +107,13 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
-      - postgres
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
 
   buyerservice:
-    build: ./backend/buyerservice
+    build: ./backend/buyerService
     environment:
       PORT: 4002
       DB_HOST: postgres
@@ -140,8 +142,8 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: seller_db
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/seller_db
+      DB_NAME: product_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/product_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       KAFKA_HOST: kafka
@@ -151,16 +153,21 @@ services:
         condition: service_started
       kafka:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   communicationservice:
-    build: ./backend/communicationservice
+    build: ./backend/communicationService
     environment:
       PORT: 4008
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    depends_on:
+      redis:
+        condition: service_started
 
   orderservice:
-    build: ./backend/orderservice
+    build: ./backend/orderService
     environment:
       PORT: 4004
       DB_HOST: postgres
@@ -178,6 +185,8 @@ services:
         condition: service_started
       kafka:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   searchingservice:
     build: ./backend/searchingservice
@@ -188,7 +197,10 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     depends_on:
-      - meilisearch
+      meilisearch:
+        condition: service_started
+      redis:
+        condition: service_started
 
   sellerservice:
     build: ./backend/sellerservice
@@ -198,8 +210,8 @@ services:
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
-      DB_NAME: seller1_db
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/seller1_db
+      DB_NAME: seller_db
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/seller_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
       KAFKA_HOST: kafka
@@ -223,14 +235,18 @@ services:
       DB_NAME: pricing_db
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      GEMINI_API_KEY: AIzaSyDFT9n0RdkX2g0Tt2A2moMMHZzcWRXz6tw
       LANGSMITH_TRACING: "true"
       LANGSMITH_ENDPOINT: https://eu.api.smith.langchain.com
+      LANGSMITH_API_KEY: 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
       LANGSMITH_PROJECT: cartcraft
       KAFKA_HOST: kafka
       KAFKA_PORT: 9092
     depends_on:
       postgres:
         condition: service_started
+      kafka:
+        condition: service_healthy
       redis:
         condition: service_started
       productservice:

@@ -84,6 +84,11 @@ app.post("/auth/login", login)
 app.post("/auth/signup", signup)
 
 app.use(accessLoggerMiddleware)
+
+app.post("/proposals/:proposal_id/approve", approveProposal)
+app.post("/proposals/:proposal_id/reject", rejectProposal)
+app.get("/proposals", fetchProposals)
+
 app.use(jwtCookieMiddleware)
 
 app.post("/seller/product", addProduct)
@@ -115,9 +120,7 @@ app.post("/admin/orders/status", getOrderStatusForAdmin)
 app.post("/buyer/orders", getBuyerOrders)
 app.post("/seller/orders", getSellerOrders)
 
-app.post("/proposals/:proposal_id/approve", approveProposal)
-app.post("/proposals/:proposal_id/reject", rejectProposal)
-app.get("/proposals", fetchProposals)
+
 
 
 
