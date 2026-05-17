@@ -37,7 +37,7 @@ export const prometheusMetricsEndpoint = async (req, res) => {
       event: "PROMETHEUS_METRICS_SERVED",
     });
 
-    // console.log("PROMETHEUS METRICS SERVED CORRECTLY");
+    // console.log("PROMETHEUS METRICS SERVED ");
   } catch (err) {
     console.error("PROMETHEUS METRICS ENDPOINT ERROR", err.message);
 
