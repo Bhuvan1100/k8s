@@ -47,7 +47,7 @@ spec:
       - /api
 
 # apiVersion: networking.k8s.io/v1
-# kind: Ingress
+# kind: Ingress123
 # metadata:
 #   name: api-gateway-ingress
 #   namespace: cartcraft
