@@ -10,7 +10,7 @@ export const getSellerOrders = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://sellerservice:4007/seller/orders",
+      "http://sellerservice:4005/seller/orders",
       req.body,
       {
         headers: {

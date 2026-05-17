@@ -11,7 +11,7 @@ import errorHandlerMiddleware from "./middleware/errorHandler.js"
 import "./worker/roleUpdater.js"
 
 const app = express()
-const port = 4001
+const port = process.env.PORT || 4001
 
 app.get("/health", (req, res) => {
   res.status(200).json({
@@ -32,7 +32,7 @@ app.post("/auth/login", login)
 app.use(errorHandlerMiddleware)
 
 app.listen(port, "0.0.0.0", () => {
-  console.log("Auth service running at port 4001")
+  console.log(`Auth service running at port ${port}`)
   appLogger.info({
     event: "AUTH_SERVICE_STARTED",
     port

@@ -46,7 +46,7 @@ export const checkoutPreview = async (req, res) => {
     }
 
     const productResponse = await axios.post(
-      "http://productservice:4006/product/softcheck",
+      "http://productservice:4003/product/softcheck",
       softCheckPayload,
       {
         headers: {

@@ -10,7 +10,7 @@ export const getOrderStatusForAdmin = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://orderservice:4005/admin/orders/status",
+      "http://orderservice:4004/admin/orders/status",
       req.body,
       {
         headers: {

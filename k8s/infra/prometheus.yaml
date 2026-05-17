@@ -1,21 +1,10 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: prometheus-pvc
-  namespace: cartcraft
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: prometheus
   namespace: cartcraft
 spec:
+  serviceName: prometheus
   replicas: 1
   selector:
     matchLabels:
@@ -45,9 +34,15 @@ spec:
         - name: prometheus-config
           configMap:
             name: prometheus-config
-        - name: prometheus-storage
-          persistentVolumeClaim:
-            claimName: prometheus-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: prometheus-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
 ---
 apiVersion: v1
 kind: Service

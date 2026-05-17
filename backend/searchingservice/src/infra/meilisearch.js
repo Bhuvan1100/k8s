@@ -1,6 +1,6 @@
 import { MeiliSearch } from "meilisearch";
 
-const MEILI_HOST = process.env.MEILI_HOST || "localhost";
+const MEILI_HOST = process.env.MEILI_HOST || "meilisearch";
 const MEILI_PORT = process.env.MEILI_PORT || "7700";
 const MEILI_MASTER_KEY = process.env.MEILI_MASTER_KEY || "";
 

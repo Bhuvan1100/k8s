@@ -69,7 +69,7 @@ export const commitCheckoutSession = async (req, res) => {
     console.log("[COMMIT_CHECKOUT_SESSION] reserving inventory", order.id)
 
     const reserveResponse = await axios.post(
-      "http://productservice:4006/product/reserve",
+      "http://productservice:4003/product/reserve",
       reservePayload,
       {
         headers: { "x-request-id": requestId }

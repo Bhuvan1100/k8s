@@ -11,7 +11,7 @@ export const createSellerDetail = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://sellerservice:4007/seller/sellerdetail",
+      "http://sellerservice:4005/seller/sellerdetail",
       req.body,
       {
         headers: {

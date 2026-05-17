@@ -13,7 +13,7 @@ export const commentProduct = async (req, res) => {
 
   try {
     const response = await axios.post(
-      `http://productservice:4006/product/comment/${productId}`,
+      `http://productservice:4003/product/comment/${productId}`,
       req.body,
       {
         headers: {

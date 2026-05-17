@@ -1,43 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pricingservice
+  name: sellerservice
   namespace: cartcraft
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pricingservice
+      app: sellerservice
   template:
     metadata:
       labels:
-        app: pricingservice
+        app: sellerservice
     spec:
       containers:
-        - name: pricingservice
-          image: bhuvan0fficial/cartcraft-pricingservice:v1
+        - name: sellerservice
+          image: bhuvan0fficial/cartcraft-sellerservice:v1
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 4008
+            - containerPort: 4005
 
           envFrom:
             - configMapRef:
-                name: pricing-config
+                name: seller-config
             - secretRef:
-                name: pricing-secret
+                name: seller-secret
 
           readinessProbe:
             httpGet:
-              path: /
-              port: 4008
+              path: /health
+              port: 4005
             initialDelaySeconds: 30
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
-              path: /
-              port: 4008
+              path: /health
+              port: 4005
             initialDelaySeconds: 50
             periodSeconds: 20
 

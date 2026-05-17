@@ -10,7 +10,7 @@ export const fillCheckoutDetails = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://orderservice:4005/checkout/session/details",
+      "http://orderservice:4004/checkout/session/details",
       req.body,
       {
         headers: {

@@ -18,7 +18,7 @@ import { getVariantPrice } from "./router/getVarientPrice.js"
 import { updateVariantPrice } from "./router/updatePrice.js"
 
 const app = express()
-const port = process.env.PORT || 4006
+const port = process.env.PORT || 4003
 
 app.get("/health", (req, res) => {
   res.status(200).json({

@@ -12,7 +12,7 @@ export const deleteProduct = async (req, res) => {
 
   try {
     const response = await axios.delete(
-      `http://productservice:4006/seller/product/${req.params.productId}`,
+      `http://productservice:4003/seller/product/${req.params.productId}`,
       {
         data: req.body,
         headers: {

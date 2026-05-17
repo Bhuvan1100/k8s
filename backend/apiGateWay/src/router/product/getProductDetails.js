@@ -13,7 +13,7 @@ export const getProductDetail = async (req, res) => {
 
   try {
     const response = await axios.get(
-      `http://productservice:4006/product/productdetail/${productId}`,
+      `http://productservice:4003/product/productdetail/${productId}`,
       {
         headers: {
           "x-request-id": req.requestId

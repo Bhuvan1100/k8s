@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: order-config
+  name: seller-config
   namespace: cartcraft
 data:
   PORT: "4005"

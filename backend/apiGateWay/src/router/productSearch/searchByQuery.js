@@ -13,7 +13,7 @@ export const getProductsByQuery = async (req, res) => {
 
   try {
     const response = await axios.post(
-      `http://searchingservice:4005/search/${query}`,
+      `http://searchingservice:4006/search/${query}`,
       req.body,
       {
         headers: {

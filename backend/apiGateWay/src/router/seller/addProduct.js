@@ -11,7 +11,7 @@ export const addProduct = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://productservice:4006/seller/product",
+      "http://productservice:4003/seller/product",
       req.body,
       {
         headers: {

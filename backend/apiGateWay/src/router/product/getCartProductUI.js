@@ -11,7 +11,7 @@ export const getCartProductForUI = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://productservice:4006/product/cart/ui",
+      "http://productservice:4003/product/cart/ui",
       req.body,
       {
         headers: {

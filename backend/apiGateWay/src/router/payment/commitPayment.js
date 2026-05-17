@@ -12,7 +12,7 @@ export const paymentCallback = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://orderservice:4005/orders/payment",
+      "http://orderservice:4004/orders/payment",
       req.body,
       {
         headers: {

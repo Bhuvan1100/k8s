@@ -13,7 +13,7 @@ import { createSellerDetail } from "./routes/sellerDetail.js"
 import { getSellerOrders } from "./routes/getSellerOrders.js"
 
 const app = express()
-const port = process.env.PORT || 4007
+const port = process.env.PORT || 4005
 
 app.get("/health", (req, res) => {
   res.status(200).json({

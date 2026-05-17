@@ -15,7 +15,7 @@ export const rejectProposal = async (req, res) => {
   try {
 
     const response = await axios.post(
-      `http://pricingservice:4008/proposals/${proposal_id}/reject`,
+      `http://pricingservice:4007/proposals/${proposal_id}/reject`,
       {},
       {
         headers: {

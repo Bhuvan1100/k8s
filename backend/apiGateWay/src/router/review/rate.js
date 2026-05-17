@@ -13,7 +13,7 @@ export const rateProduct = async (req, res) => {
 
   try {
     const response = await axios.post(
-      `http://productservice:4006/product/rate/${productId}`,
+      `http://productservice:4003/product/rate/${productId}`,
       req.body,
       {
         headers: {

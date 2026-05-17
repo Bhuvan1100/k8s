@@ -1,21 +1,10 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: grafana-pvc
-  namespace: cartcraft
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 3Gi
----
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: grafana
   namespace: cartcraft
 spec:
+  serviceName: grafana
   replicas: 1
   selector:
     matchLabels:
@@ -32,9 +21,15 @@ spec:
             - containerPort: 3000
           env:
             - name: GF_SECURITY_ADMIN_USER
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secret
+                  key: GF_SECURITY_ADMIN_USER
             - name: GF_SECURITY_ADMIN_PASSWORD
-              value: "bhu1@2004"
+              valueFrom:
+                secretKeyRef:
+                  name: grafana-secret
+                  key: GF_SECURITY_ADMIN_PASSWORD
             - name: GF_SERVER_ROOT_URL
               value: "%(protocol)s://%(domain)s/grafana/"
             - name: GF_SERVER_SERVE_FROM_SUB_PATH
@@ -42,10 +37,15 @@ spec:
           volumeMounts:
             - name: grafana-storage
               mountPath: /var/lib/grafana
-      volumes:
-        - name: grafana-storage
-          persistentVolumeClaim:
-            claimName: grafana-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: grafana-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 3Gi
 ---
 apiVersion: v1
 kind: Service

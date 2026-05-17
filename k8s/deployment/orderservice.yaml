@@ -1,43 +1,43 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: productservice
+  name: orderservice
   namespace: cartcraft
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: productservice
+      app: orderservice
   template:
     metadata:
       labels:
-        app: productservice
+        app: orderservice
     spec:
       containers:
-        - name: productservice
-          image: bhuvan0fficial/cartcraft-productservice:v1
+        - name: orderservice
+          image: bhuvan0fficial/cartcraft-orderservice:v1
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 4006
+            - containerPort: 4004
 
           envFrom:
             - configMapRef:
-                name: product-config
+                name: order-config
             - secretRef:
-                name: product-secret
+                name: order-secret
 
           readinessProbe:
             httpGet:
               path: /health
-              port: 4006
+              port: 4004
             initialDelaySeconds: 30
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /health
-              port: 4006
+              port: 4004
             initialDelaySeconds: 40
             periodSeconds: 20
 

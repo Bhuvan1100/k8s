@@ -10,7 +10,7 @@ export const proceedToCheckout = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://orderservice:4005/checkout/preview",
+      "http://orderservice:4004/checkout/preview",
       req.body,
       {
         headers: {

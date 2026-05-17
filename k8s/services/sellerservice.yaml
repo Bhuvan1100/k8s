@@ -7,6 +7,6 @@ spec:
   selector:
     app: sellerservice
   ports:
-    - port: 4007
-      targetPort: 4007
+    - port: 4005
+      targetPort: 4005
   type: ClusterIP

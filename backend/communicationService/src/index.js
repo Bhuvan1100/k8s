@@ -8,7 +8,7 @@ import "./worker/email-orderCreated.js"
 import "./worker/email-orderedItem.js"
 
 const app = express()
-const port = process.env.PORT || 4003
+const port = process.env.PORT || 4008
 
 app.get("/health", (req, res) => {
   res.status(200).json({

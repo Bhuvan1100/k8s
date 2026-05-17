@@ -2,7 +2,7 @@ import { createClient } from "redis";
 
 const redis = createClient({
   socket: {
-    host: process.env.REDIS_HOST || "127.0.0.1",
+    host: process.env.REDIS_HOST || "redis",
     port: Number(process.env.REDIS_PORT) || 6379,
     reconnectStrategy: (retries) => {
       if (retries > 10) return new Error("Redis reconnect failed");

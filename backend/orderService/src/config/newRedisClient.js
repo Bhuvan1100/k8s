@@ -1,6 +1,6 @@
 import { createClient } from "redis";
 
-const REDIS_HOST = process.env.REDIS_HOST || "localhost";
+const REDIS_HOST = process.env.REDIS_HOST || "redis";
 const REDIS_PORT = process.env.REDIS_PORT
   ? Number(process.env.REDIS_PORT)
   : 6379;

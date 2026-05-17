@@ -14,7 +14,7 @@ export const getProductsByCategory = async (req, res) => {
 
   try {
     const response = await axios.post(
-      `http://searchingservice:4005/products/${category}/${subCategory}`,
+      `http://searchingservice:4006/products/${category}/${subCategory}`,
       req.body,
       {
         headers: {

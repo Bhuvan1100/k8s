@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: zookeeper
   namespace: cartcraft
 spec:
+  serviceName: zookeeper
   replicas: 1
   selector:
     matchLabels:
@@ -21,6 +22,20 @@ spec:
           env:
             - name: ZOOKEEPER_CLIENT_PORT
               value: "2181"
+            - name: ZOOKEEPER_TICK_TIME
+              value: "2000"
+          volumeMounts:
+            - name: zookeeper-data
+              mountPath: /var/lib/zookeeper
+  volumeClaimTemplates:
+    - metadata:
+        name: zookeeper-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 3Gi
 ---
 apiVersion: v1
 kind: Service
@@ -28,6 +43,7 @@ metadata:
   name: zookeeper
   namespace: cartcraft
 spec:
+  clusterIP: None
   selector:
     app: zookeeper
   ports:

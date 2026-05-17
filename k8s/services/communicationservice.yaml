@@ -7,6 +7,6 @@ spec:
   selector:
     app: communicationservice
   ports:
-    - port: 4003
-      targetPort: 4003
+    - port: 4008
+      targetPort: 4008
   type: ClusterIP

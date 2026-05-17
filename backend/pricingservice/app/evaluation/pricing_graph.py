@@ -364,7 +364,7 @@ def apply_approval_node(state: PricingGraphState):
             print("[apply_approval_node] CALLING PRODUCT SERVICE")
 
             response = requests.post(
-                "http://productservice:4006/internal/update_price",
+                "http://productservice:4003/internal/update_price",
                 json={
                     "variant_id": proposal.variant_id,
                     "new_price": float(proposal.proposed_price)

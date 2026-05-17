@@ -4,7 +4,7 @@ metadata:
   name: search-config
   namespace: cartcraft
 data:
-  PORT: "4005"
+  PORT: "4006"
   MEILI_HOST: "meilisearch"
   MEILI_PORT: "7700"
   REDIS_HOST: "redis"

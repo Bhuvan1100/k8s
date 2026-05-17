@@ -10,7 +10,7 @@ export const commitCheckoutSession = async (req, res) => {
 
   try {
     const response = await axios.post(
-      "http://orderservice:4005/checkout/session/commit",
+      "http://orderservice:4004/checkout/session/commit",
       req.body,
       {
         headers: {

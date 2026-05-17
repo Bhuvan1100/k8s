@@ -23,7 +23,7 @@ export const checkAndReserveInventory = async (req, res) => {
     console.log("[CHECK_AND_RESERVE_INVENTORY] calling inventory service")
 
     const response = await axios.post(
-      "http://localhost:4003/seller/products/reserve",
+      "http://productservice:4003/seller/products/reserve",
       { items }
     )
 

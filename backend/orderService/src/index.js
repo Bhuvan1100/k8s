@@ -23,7 +23,7 @@ import { commitCheckoutSession } from "./routes/commit.js"
 import { startOrderLifecycleCron } from "./cron/orderLifecycleCron.js"
 
 const app = express()
-const port = process.env.PORT || 4005
+const port = process.env.PORT || 4004
 
 app.get("/health", (req, res) => {
   res.status(200).json({

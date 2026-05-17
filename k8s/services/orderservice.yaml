@@ -7,6 +7,6 @@ spec:
   selector:
     app: orderservice
   ports:
-    - port: 4005
-      targetPort: 4005
+    - port: 4004
+      targetPort: 4004
   type: ClusterIP

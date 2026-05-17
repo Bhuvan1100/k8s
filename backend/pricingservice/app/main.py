@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from langgraph.checkpoint.postgres import PostgresSaver
 from app.schedular.runner import scheduler_loop
 import asyncio
+import os
 
 from app.routes.pricing_approval import (
     approve_proposal,
@@ -13,7 +14,16 @@ from app.routes.pricing_approval import (
 from app.evaluation.pricing_graph import graph
 
 
-DATABASE_URL = "postgresql://postgres:postgres@postgres:5432/pricing_db"
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+DB_HOST = os.getenv("DB_HOST", "postgres")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "pricing_db")
+
+DATABASE_URL = (
+    f"postgresql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 
 
 

@@ -75,7 +75,7 @@ def evaluate_variant(compiled_graph, variant_id: str, batch_id: str):
         # ==============================
         try:
             product_response = requests.post(
-                "http://productservice:4006/internal/variants/pricing-context",
+                "http://productservice:4003/internal/variants/pricing-context",
                 json={"variantId": variant_id},
                 headers={
                     "x-request-id": str(uuid.uuid4()),

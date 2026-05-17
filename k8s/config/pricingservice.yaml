@@ -4,7 +4,7 @@ metadata:
   name: pricing-config
   namespace: cartcraft
 data:
-  PORT: "4008"
+  PORT: "4007"
   REDIS_HOST: "redis"
   REDIS_PORT: "6379"
   KAFKA_HOST: "kafka"

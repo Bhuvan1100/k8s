@@ -1,41 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: searchingservice
+  name: communicationservice
   namespace: cartcraft
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: searchingservice
+      app: communicationservice
   template:
     metadata:
       labels:
-        app: searchingservice
+        app: communicationservice
     spec:
       containers:
-        - name: searchingservice
-          image: bhuvan0fficial/cartcraft-searchingservice:v1
+        - name: communicationservice
+          image: bhuvan0fficial/cartcraft-communicationservice:v1
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 4005
+            - containerPort: 4008
 
           envFrom:
             - configMapRef:
-                name: search-config
+                name: communication-config
 
           readinessProbe:
             httpGet:
               path: /health
-              port: 4005
+              port: 4008
             initialDelaySeconds: 30
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /health
-              port: 4005
+              port: 4008
             initialDelaySeconds: 50
             periodSeconds: 20
 

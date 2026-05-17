@@ -22,7 +22,7 @@ export const fetchProposals = async (req, res) => {
     }
 
     const response = await axios.get(
-      "http://pricingservice:4008/proposals",
+      "http://pricingservice:4007/proposals",
       {
         params: { status },
         headers: {

@@ -13,7 +13,7 @@ import { getProductsByCategory } from "./routes/category.js"
 import { getProductsByQuery } from "./routes/query.js"
 
 const app = express()
-const port = process.env.PORT || 4005
+const port = process.env.PORT || 4006
 
 app.get("/health", (req, res) => {
   res.status(200).json({

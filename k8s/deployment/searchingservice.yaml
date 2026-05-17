@@ -1,43 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sellerservice
+  name: searchingservice
   namespace: cartcraft
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: sellerservice
+      app: searchingservice
   template:
     metadata:
       labels:
-        app: sellerservice
+        app: searchingservice
     spec:
       containers:
-        - name: sellerservice
-          image: bhuvan0fficial/cartcraft-sellerservice:v1
+        - name: searchingservice
+          image: bhuvan0fficial/cartcraft-searchingservice:v1
           imagePullPolicy: Always
 
           ports:
-            - containerPort: 4007
+            - containerPort: 4006
 
           envFrom:
             - configMapRef:
-                name: seller-config
-            - secretRef:
-                name: seller-secret
+                name: search-config
 
           readinessProbe:
             httpGet:
               path: /health
-              port: 4007
+              port: 4006
             initialDelaySeconds: 30
             periodSeconds: 10
 
           livenessProbe:
             httpGet:
               path: /health
-              port: 4007
+              port: 4006
             initialDelaySeconds: 50
             periodSeconds: 20
 
