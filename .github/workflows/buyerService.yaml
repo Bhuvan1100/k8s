@@ -6,6 +6,10 @@ on:
       - backend-deploy
     paths:
       - 'backend/buyerService/**'
+      - 'k8s/config/buyerdomainservice.yaml'
+      - 'k8s/secret/buyerdomainservice.yaml'
+      - 'k8s/services/buyerdomainservice.yaml'
+      - 'k8s/deployment/buyerdomainservice.yaml'
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-buyerservice:${{ github.sha }} ./backend/buyerService
           docker push bhuvan0fficial/cartcraft-buyerservice:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/buyerservice \
-            buyerservice=bhuvan0fficial/cartcraft-buyerservice:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/buyerdomainservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/secret/buyerdomainservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/buyerdomainservice.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/buyerdomainservice.yaml" \
+              buyerservice=bhuvan0fficial/cartcraft-buyerservice:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/buyerservice -n cartcraft --timeout=180s

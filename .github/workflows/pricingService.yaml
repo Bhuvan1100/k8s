@@ -6,6 +6,10 @@ on:
       - backend-deploy
     paths:
       - 'backend/pricingservice/**'
+      - 'k8s/config/pricingservice.yaml'
+      - 'k8s/secret/pricingservice.yaml'
+      - 'k8s/services/pricingservice.yaml'
+      - 'k8s/deployment/pricingservice.yaml'
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-pricingservice:${{ github.sha }} ./backend/pricingservice
           docker push bhuvan0fficial/cartcraft-pricingservice:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/pricingservice \
-            pricingservice=bhuvan0fficial/cartcraft-pricingservice:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/pricingservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/secret/pricingservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/pricingservice.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/pricingservice.yaml" \
+              pricingservice=bhuvan0fficial/cartcraft-pricingservice:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/pricingservice -n cartcraft --timeout=180s

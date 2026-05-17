@@ -6,6 +6,9 @@ on:
       - backend-deploy
     paths:
       - 'backend/communicationService/**'
+      - 'k8s/config/communicationservice.yaml'
+      - 'k8s/services/communicationservice.yaml'
+      - 'k8s/deployment/communicationservice.yaml'
 
 jobs:
   deploy:
@@ -23,6 +26,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-communicationservice:${{ github.sha }} ./backend/communicationService
           docker push bhuvan0fficial/cartcraft-communicationservice:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +42,13 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/communicationservice \
-            communicationservice=bhuvan0fficial/cartcraft-communicationservice:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/communicationservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/communicationservice.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/communicationservice.yaml" \
+              communicationservice=bhuvan0fficial/cartcraft-communicationservice:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/communicationservice -n cartcraft --timeout=180s

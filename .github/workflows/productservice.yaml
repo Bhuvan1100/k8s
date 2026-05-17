@@ -6,6 +6,10 @@ on:
       - backend-deploy
     paths:
       - 'backend/productservice/**'
+      - 'k8s/config/productservice.yaml'
+      - 'k8s/secret/productservice.yaml'
+      - 'k8s/services/productservice.yaml'
+      - 'k8s/deployment/productservice.yaml'
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-productservice:${{ github.sha }} ./backend/productservice
           docker push bhuvan0fficial/cartcraft-productservice:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/productservice \
-            productservice=bhuvan0fficial/cartcraft-productservice:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/productservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/secret/productservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/productservice.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/productservice.yaml" \
+              productservice=bhuvan0fficial/cartcraft-productservice:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/productservice -n cartcraft --timeout=180s

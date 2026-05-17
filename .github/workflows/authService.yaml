@@ -6,6 +6,10 @@ on:
       - backend-deploy
     paths:
       - 'backend/authService/**'
+      - 'k8s/config/authservice.yaml'
+      - 'k8s/secret/authservice.yaml'
+      - 'k8s/services/authservice.yaml'
+      - 'k8s/deployment/authservice.yaml'
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-authservice:${{ github.sha }} ./backend/authService
           docker push bhuvan0fficial/cartcraft-authservice:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/authservice \
-            authservice=bhuvan0fficial/cartcraft-authservice:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/authservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/secret/authservice.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/authservice.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/authservice.yaml" \
+              authservice=bhuvan0fficial/cartcraft-authservice:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/authservice -n cartcraft --timeout=180s

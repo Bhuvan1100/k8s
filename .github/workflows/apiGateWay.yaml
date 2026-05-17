@@ -6,6 +6,10 @@ on:
       - backend-deploy
     paths:
       - 'backend/apiGateWay/**'
+      - 'k8s/config/apigateway.yaml'
+      - 'k8s/secret/apigateway.yaml'
+      - 'k8s/services/apigateway.yaml'
+      - 'k8s/deployment/apigateway.yaml'
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
           docker build -t bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} ./backend/apiGateWay
           docker push bhuvan0fficial/cartcraft-apigateway:${{ github.sha }}
 
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -30,6 +43,14 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo kubectl set image deployment/api-gateway \
-            api-gateway=bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} \
-            -n cartcraft
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            sudo kubectl apply -f "$K8S_DIR/config/apigateway.yaml"
+            sudo kubectl apply -f "$K8S_DIR/secret/apigateway.yaml"
+            sudo kubectl apply -f "$K8S_DIR/services/apigateway.yaml"
+
+            sudo kubectl set image --local -f "$K8S_DIR/deployment/apigateway.yaml" \
+              api-gateway=bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} \
+              -o yaml | sudo kubectl apply -f -
+
+            sudo kubectl rollout status deployment/api-gateway -n cartcraft --timeout=180s
