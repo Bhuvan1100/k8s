@@ -45,12 +45,12 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/pricingservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/secret/pricingservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/pricingservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/pricingservice.yaml"
+            kubectl apply -f "$K8S_DIR/secret/pricingservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/pricingservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/pricingservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/pricingservice.yaml" \
               pricingservice=bhuvan0fficial/cartcraft-pricingservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/pricingservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/pricingservice -n cartcraft --timeout=180s

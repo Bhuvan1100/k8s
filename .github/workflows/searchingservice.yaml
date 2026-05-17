@@ -44,11 +44,11 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/searchingservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/searchingservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/searchingservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/searchingservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/searchingservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/searchingservice.yaml" \
               searchingservice=bhuvan0fficial/cartcraft-searchingservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/searchingservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/searchingservice -n cartcraft --timeout=180s

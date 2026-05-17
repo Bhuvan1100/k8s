@@ -45,12 +45,12 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/orderservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/secret/orderservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/orderservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/orderservice.yaml"
+            kubectl apply -f "$K8S_DIR/secret/orderservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/orderservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/orderservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/orderservice.yaml" \
               orderservice=bhuvan0fficial/cartcraft-orderservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/orderservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/orderservice -n cartcraft --timeout=180s

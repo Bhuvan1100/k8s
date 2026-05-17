@@ -45,12 +45,12 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/apigateway.yaml"
-            sudo kubectl apply -f "$K8S_DIR/secret/apigateway.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/apigateway.yaml"
+            kubectl apply -f "$K8S_DIR/config/apigateway.yaml"
+            kubectl apply -f "$K8S_DIR/secret/apigateway.yaml"
+            kubectl apply -f "$K8S_DIR/services/apigateway.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/apigateway.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/apigateway.yaml" \
               api-gateway=bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/api-gateway -n cartcraft --timeout=180s
+            kubectl rollout status deployment/api-gateway -n cartcraft --timeout=180s

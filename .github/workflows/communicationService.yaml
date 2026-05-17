@@ -44,11 +44,11 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/communicationservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/communicationservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/communicationservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/communicationservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/communicationservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/communicationservice.yaml" \
               communicationservice=bhuvan0fficial/cartcraft-communicationservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/communicationservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/communicationservice -n cartcraft --timeout=180s

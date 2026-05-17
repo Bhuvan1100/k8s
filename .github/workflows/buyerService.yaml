@@ -45,12 +45,12 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/buyerdomainservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/secret/buyerdomainservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/buyerdomainservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/buyerdomainservice.yaml"
+            kubectl apply -f "$K8S_DIR/secret/buyerdomainservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/buyerdomainservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/buyerdomainservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/buyerdomainservice.yaml" \
               buyerservice=bhuvan0fficial/cartcraft-buyerservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/buyerservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/buyerservice -n cartcraft --timeout=180s

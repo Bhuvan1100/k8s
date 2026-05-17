@@ -45,12 +45,12 @@ jobs:
           script: |
             K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
 
-            sudo kubectl apply -f "$K8S_DIR/config/authservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/secret/authservice.yaml"
-            sudo kubectl apply -f "$K8S_DIR/services/authservice.yaml"
+            kubectl apply -f "$K8S_DIR/config/authservice.yaml"
+            kubectl apply -f "$K8S_DIR/secret/authservice.yaml"
+            kubectl apply -f "$K8S_DIR/services/authservice.yaml"
 
-            sudo kubectl set image --local -f "$K8S_DIR/deployment/authservice.yaml" \
+            kubectl set image --local -f "$K8S_DIR/deployment/authservice.yaml" \
               authservice=bhuvan0fficial/cartcraft-authservice:${{ github.sha }} \
-              -o yaml | sudo kubectl apply -f -
+              -o yaml | kubectl apply -f -
 
-            sudo kubectl rollout status deployment/authservice -n cartcraft --timeout=180s
+            kubectl rollout status deployment/authservice -n cartcraft --timeout=180s
