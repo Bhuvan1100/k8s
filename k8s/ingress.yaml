@@ -46,7 +46,7 @@ spec:
     prefixes:
       - /api
 
-# apiVersion: networking.k8s.io/v1
+# apiVersion: networking.k8s.io/v1v2
 # kind: Ingress
 # metadata:
 #   name: api-gateway-ingress
