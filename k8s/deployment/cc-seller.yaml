@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: cc-seller
+  namespace: cartcraft
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: cc-seller
+
+  template:
+    metadata:
+      labels:
+        app: cc-seller
+
+    spec:
+      containers:
+        - name: cc-seller
+          image: bhuvan0fficial/cc-seller:v2
+
+          ports:
+            - containerPort: 5000

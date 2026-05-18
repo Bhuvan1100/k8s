@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: cc-admin-service
+  namespace: cartcraft
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app: cc-admin
+
+  ports:
+    - port: 5000
+      targetPort: 5000

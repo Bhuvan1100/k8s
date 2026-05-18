@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: cc-admin
+  namespace: cartcraft
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: cc-admin
+
+  template:
+    metadata:
+      labels:
+        app: cc-admin
+
+    spec:
+      containers:
+        - name: cc-admin
+          image: bhuvan0fficial/cc-admin:v2
+
+          ports:
+            - containerPort: 5000

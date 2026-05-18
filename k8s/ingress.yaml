@@ -6,45 +6,37 @@ metadata:
   namespace: cartcraft
 
 spec:
+  ingressClassName: nginx
+
   rules:
-
-    - host: seller.cartcraftio.in
-      http:
+    - http:
         paths:
-          - path: /
+
+          - path: /buyer
             pathType: Prefix
             backend:
               service:
-                name: seller-frontend-service
+                name: cc-buyer-service
                 port:
-                  number: 80
+                  number: 5000
 
-    - host: admin.cartcraftio.in
-      http:
-        paths:
-          - path: /
+          - path: /seller
             pathType: Prefix
             backend:
               service:
-                name: admin-frontend-service
+                name: cc-seller-service
                 port:
-                  number: 80
+                  number: 5000
 
-    - host: cartcraftio.in
-      http:
-        paths:
-          - path: /
+          - path: /admin
             pathType: Prefix
             backend:
               service:
-                name: buyer-frontend-service
+                name: cc-admin-service
                 port:
-                  number: 80
+                  number: 5000
 
-    - host: api.cartcraftio.in
-      http:
-        paths:
-          - path: /
+          - path: /api
             pathType: Prefix
             backend:
               service:
