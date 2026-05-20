@@ -66,9 +66,15 @@ app.get("/api/health", (req, res) => {
 
 
 app.use(cors({
-  origin :  "http://localhost:5173",
-  credentials: true})
-)
+  origin: [
+    "http://localhost:5173",
+    "https://buyer.cartcraftio.in",
+    "https://seller.cartcraftio.in",
+    "https://admin.cartcraftio.in"
+  ],
+  credentials: true
+}));
+
 app.set("trust proxy", 1);
 
 app.get("/metrics", prometheusMetricsEndpoint)
