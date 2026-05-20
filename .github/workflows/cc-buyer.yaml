@@ -1,0 +1,54 @@
+name: CC Buyer CI/CD
+
+on:
+  push:
+    branches:
+      - backend-deploy
+    paths:
+      - 'frontend/buyer/**'
+      - 'k8s/config/cc-buyer.yaml'
+      - 'k8s/services/cc-buyer.yaml'
+      - 'k8s/deployment/cc-buyer.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t bhuvan0fficial/cc-buyer:${{ github.sha }} ./frontend/buyer
+          docker push bhuvan0fficial/cc-buyer:${{ github.sha }}
+
+      - name: Copy Kubernetes manifests to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "k8s"
+          target: "/tmp/cartcraft-${{ github.sha }}"
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            K8S_DIR="/tmp/cartcraft-${{ github.sha }}/k8s"
+
+            kubectl apply -f "$K8S_DIR/config/cc-buyer.yaml"
+            kubectl apply -f "$K8S_DIR/services/cc-buyer.yaml"
+
+            kubectl set image --local -f "$K8S_DIR/deployment/cc-buyer.yaml" \
+              cc-buyer=bhuvan0fficial/cc-buyer:${{ github.sha }} \
+              -o yaml | kubectl apply -f -
+
+            kubectl rollout status deployment/cc-buyer -n cartcraft --timeout=180s

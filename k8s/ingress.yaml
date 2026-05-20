@@ -5,39 +5,66 @@ metadata:
   name: cartcraft-ingress
   namespace: cartcraft
 
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+
 spec:
   ingressClassName: nginx
 
-  rules:
-    - http:
-        paths:
+  tls:
+    - hosts:
+        - buyer.cartcraftio.in
+        - seller.cartcraftio.in
+        - admin.cartcraftio.in
+        - api.cartcraftio.in
+      secretName: cartcraft-tls
 
-          - path: /buyer
+  rules:
+
+    # Buyer Frontend
+    - host: buyer.cartcraftio.in
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: cc-buyer-service
                 port:
-                  number: 5000
+                  number: 80
 
-          - path: /seller
+    # Seller Frontend
+    - host: seller.cartcraftio.in
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: cc-seller-service
                 port:
-                  number: 5000
+                  number: 80
 
-          - path: /admin
+    # Admin Frontend
+    - host: admin.cartcraftio.in
+      http:
+        paths:
+          - path: /
             pathType: Prefix
             backend:
               service:
                 name: cc-admin-service
                 port:
-                  number: 5000
+                  number: 80
 
-          - path: /api
-            pathType: Prefix
+    # API Gateway
+    - host: api.cartcraftio.in
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
             backend:
               service:
                 name: api-gateway

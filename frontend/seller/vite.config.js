@@ -12,7 +12,7 @@ export default defineConfig({
     proxy: {
       // Forward all /api requests to your backend
       '/api': {
-        target: 'http://localhost:4000', // your backend URL
+        target: 'https://api.cartcraftio.in', // your backend URL
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''), // remove /api prefix
