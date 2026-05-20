@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   server: {
     proxy: {
-      // Forward all /api requests to your backend
+      
       '/api': {
         target: 'https://api.cartcraftio.in', // your backend URL
         changeOrigin: true,
