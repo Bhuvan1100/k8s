@@ -65,7 +65,7 @@ export default function PaymentPage() {
             // Notify backend of failure due to expiry
             const oid = sessionStorage.getItem('orderId');
             if (oid) {
-              axios.post('/order/payment', { orderId: oid, status: 'FAILED' }, { withCredentials: true })
+              axios.post('/api/order/payment', { orderId: oid, status: 'FAILED' }, { withCredentials: true })
                 .catch(() => {});
             }
             toast.error('Time expired! Your order has been cancelled.');

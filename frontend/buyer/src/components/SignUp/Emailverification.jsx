@@ -75,7 +75,7 @@ export default function VerifyEmailPage() {
       // ✅ Email is verified in Firebase, now call backend
       try {
         const response = await axios.post(
-          'api/auth/signup',
+          '/api/auth/signup',
           { email: user.email },
           { withCredentials: true }
         );

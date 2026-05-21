@@ -67,7 +67,7 @@ const useSellerInfoStore = create((set, get) => ({
     set({ loading: true, error: null });
 
     try {
-      const res = await axios.get("api/seller/seller");
+      const res = await axios.get("/api/seller/seller");
       if (!res.ok) {
         throw new Error("Failed to fetch seller info");
       }

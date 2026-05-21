@@ -104,7 +104,7 @@ export default function SignupPage() {
 
       // Call backend
       const response = await axios.post(
-        'api/auth/signup',
+        '/api/auth/signup',
         { email },
         { withCredentials: true }
       );

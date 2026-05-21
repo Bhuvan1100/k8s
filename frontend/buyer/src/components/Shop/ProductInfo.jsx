@@ -67,7 +67,7 @@ export default function ProductInfo({ description, additionalInfo, reviews, prod
 
     try {
       await axios.post(
-        `http://localhost:4000/product/comment/${productId}`,
+        `/api/product/comment/${productId}`,
         {
           userId: userId,
           userEmail: email,
@@ -123,7 +123,7 @@ export default function ProductInfo({ description, additionalInfo, reviews, prod
 
     try {
       const response = await axios.post(
-        `http://localhost:4000/product/rate/${productId}`,
+        `/api/product/rate/${productId}`,
         {
           userId: userId,
           userEmail: email,

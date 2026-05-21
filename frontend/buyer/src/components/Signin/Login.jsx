@@ -65,7 +65,7 @@ export default function LoginPage() {
   const backendLogin = async (firebaseUser) => {
     try {
       const response = await axios.post(
-        "api/auth/login",
+        "/api/auth/login",
         { email: firebaseUser.email },
         { withCredentials: true }
       );

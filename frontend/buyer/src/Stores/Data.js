@@ -50,7 +50,7 @@ export const fetchProductById = async (id) => {
   try {
    
     const productRes = await axios.get(
-      `http://localhost:4000/product/productdetail/${id}`,
+      `/api/product/productdetail/${id}`,
       {
         withCredentials:true
       }
@@ -148,7 +148,7 @@ export const fetchProductsByCategory = async (category, subCategory, page = 1) =
     const formattedSubCategory = `${subCategory.toLowerCase()}`; 
 
     const res = await axios.get(  
-      `http://localhost:4000/products/${formattedCategory}/${subCategory}?page=${page}`,
+      `/api/products/${formattedCategory}/${subCategory}?page=${page}`,
       {
         withCredentials: true
       }
