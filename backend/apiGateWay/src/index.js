@@ -56,12 +56,15 @@ import { fetchProposals } from "./router/pricing/fetchProposal.js"
 const app = express()
 const port = 4000
 
-app.get("/api/health", (req, res) => {
+const healthHandler = (req, res) => {
   res.status(200).json({
     status: "OK",
     service: "API_GATEWAY"
   })
-})
+}
+
+app.get("/health", healthHandler)
+app.get("/api/health", healthHandler)
 
 
 
