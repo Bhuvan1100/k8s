@@ -43,3 +43,4 @@ export async function rejectProposal(id) {
     method: "POST"
   })
 }
+// thhis is the main fetching page

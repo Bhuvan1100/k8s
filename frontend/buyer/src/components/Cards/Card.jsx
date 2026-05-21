@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { HeartIcon, StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 
-// Lazy load image component with intersection observer
+
 const LazyImage = ({ src, alt, className }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(
