@@ -16,6 +16,7 @@ spec:
         - buyer.cartcraftio.in
         - seller.cartcraftio.in
         - admin.cartcraftio.in
+        - api.cartcraftio.in
       secretName: cartcraft-tls
 
   rules:
