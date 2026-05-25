@@ -4,7 +4,9 @@ import cookieParser from "cookie-parser"
 import cors from "cors"
 
 import {
-  prometheusMiddleware,
+  latencyChecker,
+  totalRequestCounter,
+  errorTrackingMiddleware,
   prometheusMetricsEndpoint
 } from "./metrics/prometheus.js"
 
@@ -83,7 +85,9 @@ app.set("trust proxy", 1);
 app.get("/metrics", prometheusMetricsEndpoint)
 
 app.use(requestIdMiddleware)
-app.use(prometheusMiddleware)
+app.use(totalRequestCounter)
+app.use(latencyChecker)
+app.use(errorHandlerMiddleware)
 app.use(rateLimitMiddleware)
 app.use(express.json())
 app.use(cookieParser())

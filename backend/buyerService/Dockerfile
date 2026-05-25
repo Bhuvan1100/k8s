@@ -14,6 +14,6 @@ CMD ["sh", "-c", "\
   echo 'Waiting for Postgres...' && \
   until pg_isready -h ${DB_HOST:-postgres} -p ${DB_PORT:-5432} -U ${DB_USER:-postgres}; do sleep 2; done && \
   echo 'Postgres is ready' && \
-  npx prisma migrate deploy init && \
+  npx prisma migrate deploy && \
   node src/index.js \
 "]

@@ -46,6 +46,23 @@ spec:
     - host: admin.cartcraftio.in
       http:
         paths:
+
+          - path: /prometheus
+            pathType: Prefix
+            backend:
+              service:
+                name: prometheus
+                port:
+                  number: 9090
+
+          - path: /grafana
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: 3000
+
           - path: /
             pathType: Prefix
             backend:
@@ -64,5 +81,5 @@ spec:
                 name: api-gateway
                 port:
                   number: 4000
-
+                  
 # kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml                  

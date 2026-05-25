@@ -18,6 +18,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data_test:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   meilisearch:
     image: getmeili/meilisearch:v1.6
@@ -92,7 +97,8 @@ services:
       PRICING_SERVICE_URL: http://pricingservice:4007
       COMMUNICATION_SERVICE_URL: http://communicationservice:4008
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
 
   authservice:
     build: ./backend/authService
