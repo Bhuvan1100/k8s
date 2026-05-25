@@ -53,4 +53,4 @@ jobs:
               api-gateway=bhuvan0fficial/cartcraft-apigateway:${{ github.sha }} \
               -o yaml | kubectl apply -f -
 
-            kubectl rollout status deployment/api-gateway -n cartcraft --timeout=180s
+            kubectl rollout status deployment/api-gateway -n cartcraft --timeout=600s
