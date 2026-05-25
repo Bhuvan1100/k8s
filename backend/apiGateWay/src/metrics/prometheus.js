@@ -36,7 +36,7 @@ export const errorTrackingMiddleware = (req, res, next) => {
           .inc();
       }
     } catch (err) {
-      console.error("PROMETHEUS ERROR TRACKING FAILED", err.message);
+      // console.error("PROMETHEUS ERROR TRACKING FAILED", err.message);
 
       errorLogger.error({
         event: "PROMETHEUS_ERROR_TRACKING_FAILED",
